@@ -52,7 +52,11 @@ It's able to properly export an image too:
 
 # Example:
 
+## Highlight of a normal paragraph
+
 ![](example1.png)
+
+## Highlight using mathematical notation
 
 ![](example2.png)
 
