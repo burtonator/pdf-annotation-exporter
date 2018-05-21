@@ -42,7 +42,11 @@ It's able to properly export an image too:
 
 - other types of annotations.
 
-- annotations with user text.
+- annotations with user entered text.
+
+- connect it up with chrome headless to run from the command line
+
+- use the PDF.js API ourselves. Don't rely on the demo PDF.js
 
 # What I need help on?
 
