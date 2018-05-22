@@ -20,7 +20,7 @@
  * Get the annotations from a specific page.
  * @param page
  */
-function getHighlights(page) {
+function getHighlights(page, extractionOptions) {
 
     // textAnnotation and highlightAnnotation
 
@@ -29,9 +29,12 @@ function getHighlights(page) {
 
     var result = [];
 
-    for(var idx = 0; idx < highlights.length; ++idx) {
+    var annotations = getAnnotationElements(page, "highlight");
 
-        var highlightElement = highlights[idx];
+    for(var idx = 0; idx < annotations.length; ++idx) {
+        var current = annotations[idx];
+
+        var highlightElement = current.annotation;
 
         console.log("highlightElement: ", highlightElement)
 
@@ -50,13 +53,69 @@ function getHighlights(page) {
         console.log("highlightRegion: ", highlightRegion)
         console.log("highlightBox: ", highlightBox)
 
-        var highlight = getHighlight(page, highlightBox, highlightBoxWithScale);
+        var comment = {};
+
+        if (current.popup) {
+            comment = parsePopupAnnotation(current.popup);
+        }
+
+        var linesOfText = getHighlightLinesOfText(page, highlightBox, highlightBoxWithScale, comment, extractionOptions);
+
+        var image = null;
+
+        if (! extractionOptions.noAnnotationImages)
+            image = getHighlightImage(page, highlightBoxWithScale);
+
+        var highlight = createHighlight(highlightBox, linesOfText, image, highlightBoxWithScale, comment);
 
         result.push(highlight);
 
     }
 
     return result;
+
+}
+
+// TODO: this could be more efficient by using an index of the offsets so that
+// we only have to search within the offsets and dimensions that we're interested
+// in.
+function getHighlightLinesOfText(page, highlightBox) {
+    
+    var textElements = page.querySelectorAll(".textLayer div")
+
+    // console.log("Working with textAnnotationBox: ", textAnnotationBox)
+
+    var linesOfText = [];
+
+    for(var idx = 0; idx < textElements.length; ++idx) {
+        var textElement = textElements[idx];
+
+        var elementRegion = toElementRegion(textElement);
+        var elementBox = regionToBox(elementRegion);
+
+        // console.log("textElement: ", textElement);
+        // console.log("elementRegion: ", elementRegion);
+        // console.log("elementBox: ", elementBox);
+
+        if (isWithinBox(elementBox, highlightBox)) {
+            // console.log("YES!: " + textElement.outerText);
+            linesOfText.push(textElement.outerText);
+        }
+
+    }
+
+    return linesOfText;
+
+}
+
+function parsePopupAnnotation(popupElement) {
+
+    var dataElement = popupElement.querySelector(".popup")
+
+    return {
+        author: dataElement.querySelector("h1").textContent,
+        text: dataElement.querySelector("p").textContent
+    };
 
 }
 
@@ -98,49 +157,13 @@ function getImage(page) {
     return canvas.toDataURL()
 }
 
-// TODO: this could be more efficient by using an index of the offsets so that
-// we only have to search within the offsets and dimensions that we're interested
-// in.
-function getHighlight(page, highlightBox, highlightBoxWithScale) {
-
-    // FIXME: change to highlightBox
-
-    var textElements = page.querySelectorAll(".textLayer div")
-
-    // console.log("Working with textAnnotationBox: ", textAnnotationBox)
-
-    var linesOfText = [];
-
-    for(var idx = 0; idx < textElements.length; ++idx) {
-        var textElement = textElements[idx];
-
-        var elementRegion = toElementRegion(textElement);
-        var elementBox = regionToBox(elementRegion);
-
-        // console.log("textElement: ", textElement);
-        // console.log("elementRegion: ", elementRegion);
-        // console.log("elementBox: ", elementBox);
-
-        if (isWithinBox(elementBox, highlightBox)) {
-            // console.log("YES!: " + textElement.outerText);
-            linesOfText.push(textElement.outerText);
-        }
-
-    }
-
-    var image = getHighlightImage(page, highlightBoxWithScale);
-
-    return createHighlight(highlightBox, linesOfText, image, highlightBoxWithScale);
-
-}
-
 /**
  * Create an object with the bounding box of the text plus the text as an actual
  * array of lines.
  */
-function createHighlight(box, linesOfText, image, highlightBoxWithScale) {
+function createHighlight(box, linesOfText, image, highlightBoxWithScale, comment) {
 
-    return {box: box, linesOfText: linesOfText, image: image, box: highlightBoxWithScale};
+    return {box: box, linesOfText: linesOfText, image: image, boxWithScale: highlightBoxWithScale, comment: comment};
 
 }
 
@@ -231,9 +254,9 @@ function test() {
 
 }
 
-function extractPage(page) {
+function extractPage(page, extractionOptions) {
 
-    var highlights = getHighlights(page);
+    var highlights = getHighlights(page, extractionOptions);
     //var image = getImage(page);
 
     // TODO: no image for now because it's too much data. Make this an option
@@ -266,7 +289,8 @@ function createPageExtract(highlights, image) {
  *  - square      - a rectangular region that is highlighted
  *  - text        - a small control with embedded text which is mostly hidden
  *
- * Return an array of objects which have annotation and popup params.  
+ * Return an array of objects which have annotation and popup params which are
+ * elements referencing our data.
  */
 function getAnnotationElements(page,type) {
 
@@ -304,7 +328,7 @@ function getAnnotationElements(page,type) {
 
 }
 
-function doExtraction(options) {
+function doExtraction(extractionOptions) {
 
     result = {
         pages: []
@@ -319,7 +343,7 @@ function doExtraction(options) {
         if (! canvas)
             continue;
 
-        var pageExtract = extractPage(page);
+        var pageExtract = extractPage(page, extractionOptions);
         result.pages.push(pageExtract);
 
     }
@@ -338,7 +362,22 @@ function doExtraction(options) {
 
 // FIXME: include support for notes and highlights of regions.
 
-var result = doExtraction({});
+// FIXME: current problems:
+//
+// we don't properly limit the range of teh text BEFORE our highlight.  This was
+// not actually WHAT we highlighted.  I'm going to have to figure out how to do
+// that..  it might not be proossible. ALSO the last div isn't shown.   
+//
+//           "linesOfText": [
+//             "ous transactions. We show that this is a sensible tradeoff,",
+//             "and that resulting system is sufficient for building com-"
+//           ],
+
+function createExtractionOptions() {
+    return {noPageImages: false, noAnnotationImages: true};
+}
+
+var result = doExtraction(createExtractionOptions());
 
 console.log(JSON.stringify(result, null, "  "));
 

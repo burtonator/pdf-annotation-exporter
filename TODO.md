@@ -51,3 +51,10 @@ at 400% the image couldn't be rendered.. it went from 620k to 2.5MB
   also keep notes this way.- I need to support using rectangle annotations to
 
 - highlight figures I want to export too because I can't highlight them.
+
+# Exporting raw HTML:
+
+I might be able to duplicate the DOM, then remove everything else from it,
+keeping JUST the nodes I need, then just calling outerHTML on that resulting,
+pruned document.
+
