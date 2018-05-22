@@ -62,8 +62,6 @@ function getHighlights(page) {
 
 function getHighlightImage(page, highlightBox) {
 
-    // FIXME: the transform has a 'scale' that I have to factor into account..
-
     var canvas = getPageCanvas(page);
 
     var tmpCanvas = document.createElement("canvas");
@@ -81,7 +79,7 @@ function getHighlightImage(page, highlightBox) {
                       0, 0, highlightRegion.width, highlightRegion.height );
 
     var dataURL = tmpCanvas.toDataURL();
-    logImage(dataURL);
+    //logImage(dataURL);
 
     return dataURL;
 
@@ -236,7 +234,11 @@ function test() {
 function extractPage(page) {
 
     var highlights = getHighlights(page);
-    var image = getImage(page);
+    //var image = getImage(page);
+
+    // TODO: no image for now because it's too much data. Make this an option
+    // in the future.
+    var image = null;
 
     return createPageExtract(highlights, image)
 
@@ -301,7 +303,6 @@ function getAnnotationElements(page,type) {
     return result;
 
 }
-
 
 function doExtraction(options) {
 
