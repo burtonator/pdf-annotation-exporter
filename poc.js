@@ -75,37 +75,10 @@ function getHighlightImage(page, highlightBox) {
     tmpCanvas.width  = highlightRegion.width;
     tmpCanvas.height = highlightRegion.height;
 
-    // FIXME: the width and height are proper but the x and y are WAY off...
-
-    console.log("FIXME: highlightBox: ", highlightBox);
-    console.log("FIXME: highlightRegion: ", highlightRegion);
-
     // //call its drawImage() function passing it the source canvas directly
     destCtx.drawImage(canvas,
                       highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
                       0, 0, highlightRegion.width, highlightRegion.height );
-
-    // we could also call context .getImageData with x, y, width and height..
-
-    // FIXME: ok.. this mostly works but I'm not able to properly convert the
-    // coordinates to the screenshot coordinates.. not sure why..  I think it might be downsizing the canvas?
-    // destCtx.drawImage(canvas,
-    //                   553, 339, highlightRegion.width, 150,
-    //                   0, 0, highlightRegion.width, 150 );
-
-    // this makes no sense.. the coordinates on teh underlying image are way
-    // off... not sure wy.  The FULL image renders properly though.
-    //
-    //
-    // // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData
-    // //var imageData = canvas.getContext('2d').getImageData(553, 339, 150, 150);
-    // var imageData = canvas.getContext('2d').getImageData(100, 100, 500, 500);
-    // destCtx.putImageData(imageData, 0, 0);
-
-    // FIXME: load my coordinates into an image editor like gimp and then see if they work..
-    // and that maybe this is a bug with the canvas...
-
-    // destCtx.drawImage(canvas, 0, 0);
 
     var dataURL = tmpCanvas.toDataURL();
     logImage(dataURL);
@@ -289,7 +262,7 @@ function createPageExtract(highlights, image) {
  *  - highlight   - text that is highlighted on the page. this also includes a form
  *                  of annotation that is a square rectangle that is highlighted.
  *  - square      - a rectangular region that is highlighted
- *  - text        - a small control with embedded text which is mostly hidden.
+ *  - text        - a small control with embedded text which is mostly hidden
  *
  * Return an array of objects which have annotation and popup params.  
  */
@@ -330,7 +303,7 @@ function getAnnotationElements(page,type) {
 }
 
 
-function doExtraction() {
+function doExtraction(options) {
 
     result = {
         pages: []
@@ -364,7 +337,7 @@ function doExtraction() {
 
 // FIXME: include support for notes and highlights of regions.
 
-var result = doExtraction();
+var result = doExtraction({});
 
 console.log(JSON.stringify(result, null, "  "));
 
