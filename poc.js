@@ -305,6 +305,11 @@ function extract() {
     
 }
 
+// FIXME: the popupAnnotation has to be extracted... basically, if a popup annotation
+// proceeds a main annotation then the popup annotation is attached to that one.
+// I don't think there is such a thing as a main annotation.
+
+
 // FIXME: I now need to tell the rendered to go through and render all the pages
 // and use promises as it doesn't actually do this by itself.
 

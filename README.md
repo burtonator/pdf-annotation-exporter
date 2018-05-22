@@ -48,6 +48,10 @@ It's able to properly export an image too:
 
 - use the PDF.js API ourselves. Don't rely on the demo PDF.js
 
+- compute the scale ourselves
+
+- take screenshots at 400% so the font resolution is high
+
 # What I need help on?
 
 - Is there a reliable way to extract the HTML with all the formatting for the PDF
