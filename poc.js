@@ -18,9 +18,8 @@
 
 /**
  * Get the annotations from a specific page.
- * @param page
  */
-function getHighlights(page, extractionOptions) {
+function getAnnotations(page, extractionOptions) {
 
     // textAnnotation and highlightAnnotation
 
@@ -31,15 +30,22 @@ function getHighlights(page, extractionOptions) {
 
     var highlightAnnotations = getAnnotationElements(page, "highlight");
     var squareAnnotations = getAnnotationElements(page, "square");
+    var textAnnotations = getAnnotationElements(page, "text");
 
-    var annotations = highlightAnnotations.concat(squareAnnotations);
+    console.log("Found text annotations: ", textAnnotations);
+
+    // TODO: we can probably get all of these in one pass.
+    var annotations
+        = highlightAnnotations
+        .concat(squareAnnotations)
+        .concat(textAnnotations);
 
     for(var idx = 0; idx < annotations.length; ++idx) {
         var current = annotations[idx];
 
         var highlightElement = current.annotation;
 
-        console.log("highlightElement: ", highlightElement)
+        // console.log("highlightElement: ", highlightElement)
 
         var highlightRegion = toElementRegion(highlightElement);
         var highlightBox = regionToBox(highlightRegion);
@@ -50,11 +56,11 @@ function getHighlights(page, extractionOptions) {
         //console.log("FIXME: ", document.defaultView.getComputedStyle(highlightElement));
         //console.log("FIXME2: ", highlightElement.getClientRects());
 
-        console.log("highlightRegion using offsets: ", toElementRegionUsingOffset(highlightElement));
-        console.log("highlightElement client rect bounding box: ", highlightElement.getBoundingClientRect());
-
-        console.log("highlightRegion: ", highlightRegion)
-        console.log("highlightBox: ", highlightBox)
+        // console.log("highlightRegion using offsets: ", toElementRegionUsingOffset(highlightElement));
+        // console.log("highlightElement client rect bounding box: ", highlightElement.getBoundingClientRect());
+        //
+        // console.log("highlightRegion: ", highlightRegion)
+        // console.log("highlightBox: ", highlightBox)
 
         var comment = {};
 
@@ -66,10 +72,16 @@ function getHighlights(page, extractionOptions) {
 
         var image = null;
 
-        if (! extractionOptions.noAnnotationImages)
+        if (! extractionOptions.noAnnotationImages && current.type !== "text") {
             image = getHighlightImage(page, highlightBoxWithScale);
+        }
 
-        var highlight = createHighlight(highlightBox, linesOfText, image, highlightBoxWithScale, comment);
+        var highlight = createHighlight(highlightBox,
+                                        linesOfText,
+                                        image,
+                                        highlightBoxWithScale,
+                                        comment,
+                                        current.type);
 
         result.push(highlight);
 
@@ -172,9 +184,9 @@ function getImage(page) {
  * Create an object with the bounding box of the text plus the text as an actual
  * array of lines.
  */
-function createHighlight(box, linesOfText, image, highlightBoxWithScale, comment) {
+function createHighlight(box, linesOfText, image, highlightBoxWithScale, comment, type) {
 
-    return {box: box, linesOfText: linesOfText, image: image, boxWithScale: highlightBoxWithScale, comment: comment};
+    return {box: box, linesOfText: linesOfText, image: image, boxWithScale: highlightBoxWithScale, comment: comment, type: type};
 
 }
 
@@ -267,19 +279,19 @@ function test() {
 
 function extractPage(page, extractionOptions) {
 
-    var highlights = getHighlights(page, extractionOptions);
+    var annotations = getAnnotations(page, extractionOptions);
     //var image = getImage(page);
 
     // TODO: no image for now because it's too much data. Make this an option
     // in the future.
     var image = null;
 
-    return createPageExtract(highlights, image)
+    return createPageExtract(annotations, image)
 
 }
 
-function createPageExtract(highlights, image) {
-    return {highlights: highlights, image: image};
+function createPageExtract(annotations, image) {
+    return {annotations: annotations, image: image};
 }
 
 //
@@ -303,7 +315,7 @@ function createPageExtract(highlights, image) {
  * Return an array of objects which have annotation and popup params which are
  * elements referencing our data.
  */
-function getAnnotationElements(page,type) {
+function getAnnotationElements(page, type) {
 
     var clazz = type + "Annotation";
 
@@ -317,7 +329,7 @@ function getAnnotationElements(page,type) {
 
         if (annotationElement.getAttribute("class") === clazz) {
 
-            var entry = { annotation: null, popup: null};
+            var entry = { type: type, annotation: null, popup: null};
             entry.annotation = annotationElement;
 
             // now see if we have an associated popup by looking ahead to the
@@ -392,7 +404,7 @@ function doExtraction(extractionOptions) {
 //   https://daverupert.com/2010/09/lettering-js/
 
 function createExtractionOptions() {
-    return {noPageImages: false, noAnnotationImages: true};
+    return {noPageImages: false, noAnnotationImages: false};
 }
 
 var result = doExtraction(createExtractionOptions());
