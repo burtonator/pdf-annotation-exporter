@@ -30,8 +30,6 @@ at 400% the image couldn't be rendered.. it went from 620k to 2.5MB
 
 # This strategy will work
 
-
-
 - use chrome headless
 - render the page
 - find every page
