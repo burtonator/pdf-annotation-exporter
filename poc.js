@@ -281,7 +281,56 @@ function createPageExtract(highlights, image) {
 //     height: 58.755
 // };
 
-function extract() {
+/**
+ * Get all annotations on the page for the given type and include their popup
+ * annotations for extracting text from them.
+ *
+ * Types:
+ *  - highlight   - text that is highlighted on the page. this also includes a form
+ *                  of annotation that is a square rectangle that is highlighted.
+ *  - square      - a rectangular region that is highlighted
+ *  - text        - a small control with embedded text which is mostly hidden.
+ *
+ * Return an array of objects which have annotation and popup params.  
+ */
+function getAnnotationElements(page,type) {
+
+    var clazz = type + "Annotation";
+
+    var result = [];
+
+    var annotationElements = page.querySelectorAll(".annotationLayer ." + clazz + ", .annotationLayer .popupAnnotation")
+
+    for (var idx = 0; idx < annotationElements.length; ++idx) {
+
+        var annotationElement = annotationElements[idx];
+
+        if (annotationElement.getAttribute("class") === clazz) {
+
+            var entry = { annotation: null, popup: null};
+            entry.annotation = annotationElement;
+
+            // now see if we have an associated popup by looking ahead to the
+            // next annotation.
+
+            var nextAnnotationElement = annotationElements[idx+1];
+
+            if (nextAnnotationElement && nextAnnotationElement.getAttribute("class") === "popupAnnotation") {
+                entry.popup = nextAnnotationElement;
+            }
+
+            result.push(entry);
+
+        }
+
+    }
+
+    return result;
+
+}
+
+
+function doExtraction() {
 
     result = {
         pages: []
@@ -315,7 +364,7 @@ function extract() {
 
 // FIXME: include support for notes and highlights of regions.
 
-var result = extract();
+var result = doExtraction();
 
 console.log(JSON.stringify(result, null, "  "));
 
