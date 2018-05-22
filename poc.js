@@ -29,7 +29,10 @@ function getHighlights(page, extractionOptions) {
 
     var result = [];
 
-    var annotations = getAnnotationElements(page, "highlight");
+    var highlightAnnotations = getAnnotationElements(page, "highlight");
+    var squareAnnotations = getAnnotationElements(page, "square");
+
+    var annotations = highlightAnnotations.concat(squareAnnotations);
 
     for(var idx = 0; idx < annotations.length; ++idx) {
         var current = annotations[idx];
@@ -113,8 +116,16 @@ function parsePopupAnnotation(popupElement) {
     var dataElement = popupElement.querySelector(".popup")
 
     return {
-        author: dataElement.querySelector("h1").textContent,
-        text: dataElement.querySelector("p").textContent
+
+        // TODO: might want to filter these for 
+        author: Optional.of(dataElement.querySelector("h1")).map(function(element) {
+            return element.textContent;
+        }).getOrElse(null),
+        
+        text: Optional.of(dataElement.querySelector("p")).map(function(element) {
+            return element.textContent;
+        }).getOrElse(null)
+
     };
 
 }
@@ -200,8 +211,8 @@ function getScaledElementRegion(element) {
     //offsetLeft and offsetTop here are correct but DO need scaling.
     // FIXME: read these from the data...
 
-    var scaleX = 2.53333333333333333;
-    var scaleY = 2.53333333333333333;
+    var scaleX = 2.6666666666666;
+    var scaleY = 2.6666666666666;
 
     return {left: element.offsetLeft * scaleX,
             top: element.offsetTop * scaleY,
@@ -315,7 +326,14 @@ function getAnnotationElements(page,type) {
             var nextAnnotationElement = annotationElements[idx+1];
 
             if (nextAnnotationElement && nextAnnotationElement.getAttribute("class") === "popupAnnotation") {
-                entry.popup = nextAnnotationElement;
+                entry.popup = nextAnnotationElement.querySelector(".popupWrapper");
+            }
+
+            // for square annotations, they have the popupWrapper internally..
+            // which is annoying and confusing.
+
+            if ( ! entry.popup ) {
+                entry.popup = annotationElement.querySelector(".popupWrapper");
             }
 
             result.push(entry);
