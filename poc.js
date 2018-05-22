@@ -352,15 +352,10 @@ function doExtraction(extractionOptions) {
     
 }
 
-// FIXME: the popupAnnotation has to be extracted... basically, if a popup annotation
-// proceeds a main annotation then the popup annotation is attached to that one.
-// I don't think there is such a thing as a main annotation.
-
-
 // FIXME: I now need to tell the rendered to go through and render all the pages
 // and use promises as it doesn't actually do this by itself.
 
-// FIXME: include support for notes and highlights of regions.
+// FIXME: include support for text notes and highlights of regions 
 
 // FIXME: current problems:
 //
@@ -372,6 +367,11 @@ function doExtraction(extractionOptions) {
 //             "ous transactions. We show that this is a sensible tradeoff,",
 //             "and that resulting system is sufficient for building com-"
 //           ],
+//
+// I'm going to have to use the lettering plugin for this to get the position
+// of each letter:
+//
+//   https://daverupert.com/2010/09/lettering-js/
 
 function createExtractionOptions() {
     return {noPageImages: false, noAnnotationImages: true};
