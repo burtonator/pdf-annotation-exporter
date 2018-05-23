@@ -53,14 +53,10 @@ function getAnnotations(page, extractionOptions) {
         var highlightRegionWithScale = getScaledElementRegion(highlightElement);
         var highlightBoxWithScale = regionToBox(highlightRegionWithScale);
 
-        //console.log("FIXME: ", document.defaultView.getComputedStyle(highlightElement));
-        //console.log("FIXME2: ", highlightElement.getClientRects());
-
-        // console.log("highlightRegion using offsets: ", toElementRegionUsingOffset(highlightElement));
-        // console.log("highlightElement client rect bounding box: ", highlightElement.getBoundingClientRect());
-        //
-        // console.log("highlightRegion: ", highlightRegion)
-        // console.log("highlightBox: ", highlightBox)
+        if(isSkippable(page, highlightRegionWithScale)) {
+            console.log("FIXME: skipping");
+            continue;
+        }
 
         var comment = {};
 
@@ -103,7 +99,7 @@ function isSkippable(page, highlightRegionWithScale) {
 
     var highlightArea = highlightRegionWithScale.width * highlightRegionWithScale.height;
 
-    var coverage = canvasArea / highlightArea;
+    var coverage = highlightArea / canvasArea;
 
     // most annotations would never take up this much space so it must be a page
     // annotation
