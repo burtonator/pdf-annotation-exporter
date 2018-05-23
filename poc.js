@@ -72,7 +72,7 @@ function getAnnotations(page, extractionOptions) {
 
         var image = null;
 
-        if (! extractionOptions.noAnnotationImages && current.type !== "text") {
+        if (! extractionOptions.noAnnotationImages && current.type !== "text" && highlightRegion.area > 0) {
             image = getHighlightImage(page, highlightBoxWithScale);
         }
 
@@ -88,6 +88,26 @@ function getAnnotations(page, extractionOptions) {
     }
 
     return result;
+
+}
+
+/**
+ *  Return true if the given annotation is skippable
+ *
+ */
+function isSkippable(page, highlightRegionWithScale) {
+
+    var canvas = getPageCanvas(page);
+
+    var canvasArea = canvas.offsetWidth * canvas.offsetHeight;
+
+    var highlightArea = highlightRegionWithScale.width * highlightRegionWithScale.height;
+
+    var coverage = canvasArea / highlightArea;
+
+    // most annotations would never take up this much space so it must be a page
+    // annotation
+    return coverage > 0.9;
 
 }
 
@@ -160,10 +180,11 @@ function getHighlightImage(page, highlightBox) {
                       highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
                       0, 0, highlightRegion.width, highlightRegion.height );
 
-    var dataURL = tmpCanvas.toDataURL();
-    //logImage(dataURL);
-
-    return dataURL;
+    return {
+        src: tmpCanvas.toDataURL(),
+        width: highlightRegion.width,
+        height: highlightRegion.height
+    };
 
 }
 
@@ -192,7 +213,8 @@ function createHighlight(box, linesOfText, image, highlightBoxWithScale, comment
 
 // A region is like a box but based on left, top, width, height.
 function createRegion(left, top, width, height) {
-    return {left: left, top: top, width: width, height: height};
+    var area = width * height;
+    return {left: left, top: top, width: width, height: height, area: area};
 }
 
 // Take a region and convert it to a box.
@@ -220,16 +242,31 @@ function getScaledElementRegion(element) {
     // the width and height here are what we want and don't need to be scaled.
     var boundingClientRect = element.getBoundingClientRect();
 
-    //offsetLeft and offsetTop here are correct but DO need scaling.
-    // FIXME: read these from the data...
+    var scales = parseTransformScale(element.style.transform);
 
-    var scaleX = 2.6666666666666;
-    var scaleY = 2.6666666666666;
+    var scaleX = scales[0];
+    var scaleY = scales[1];
 
     return {left: element.offsetLeft * scaleX,
             top: element.offsetTop * scaleY,
             width: boundingClientRect.width,
             height: boundingClientRect.height };
+
+}
+
+
+function parseTransformScale(transform) {
+
+    // element.style.transform
+
+    // parseTransformScale("matrix(2.66667, 0, 0, 2.66667, 0, 0)");
+
+    transform = transform.replace("matrix(", "");
+    transform = transform.replace(")", "");
+
+    var splitData = transform.split(", ")
+
+    return [parseFloat(splitData[0]), parseFloat(splitData[3])];
 
 }
 
@@ -382,10 +419,10 @@ function doExtraction(extractionOptions) {
     
 }
 
+
+
 // FIXME: I now need to tell the rendered to go through and render all the pages
 // and use promises as it doesn't actually do this by itself.
-
-// FIXME: include support for text notes and highlights of regions 
 
 // FIXME: current problems:
 //
