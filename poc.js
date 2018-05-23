@@ -54,7 +54,6 @@ function getAnnotations(page, extractionOptions) {
         var highlightBoxWithScale = regionToBox(highlightRegionWithScale);
 
         if(isSkippable(page, highlightRegionWithScale)) {
-            console.log("FIXME: skipping");
             continue;
         }
 
@@ -176,8 +175,12 @@ function getHighlightImage(page, highlightBox) {
                       highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
                       0, 0, highlightRegion.width, highlightRegion.height );
 
+    // toDataURL returns in 96DPI but we should return it in a higher
+    // resolution I think however I guess a picture of text will just never
+    // look appropriate 
+
     return {
-        src: tmpCanvas.toDataURL(),
+        src: tmpCanvas.toDataURL('image/webp', 1.0),
         width: highlightRegion.width,
         height: highlightRegion.height
     };
@@ -194,7 +197,7 @@ function getPageCanvas(page) {
 
 function getImage(page) {
     var canvas = getPageCanvas(page);
-    return canvas.toDataURL()
+    return canvas.toDataURL('image/webp', 1.0);
 }
 
 /**
