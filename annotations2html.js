@@ -44,6 +44,11 @@ fs.readFile('example.json.txt', 'utf8', function (err,data) {
                 console.log(`<img src="%s" width="%s" height="%s">`, annotation.image.src, annotation.image.width, annotation.image.height);
             }
 
+            console.log(`<br><b>lines of text:</b><br>`);
+
+            console.log(`<blockquote>%s</blockquote>`, annotation.linesOfText.join("\n<br>"));
+
+            console.log(`<br><b>comment:</b><br>`);
             console.log("<blockquote>%s</blockquote>", annotation.comment.text);
 
             console.log("</div>")

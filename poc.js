@@ -102,7 +102,7 @@ function isSkippable(page, highlightRegionWithScale) {
 
     // most annotations would never take up this much space so it must be a page
     // annotation
-    return coverage > 0.9;
+    return coverage > 0.9 || (highlightRegionWithScale.left === 0 && highlightRegionWithScale.top === 0);
 
 }
 
