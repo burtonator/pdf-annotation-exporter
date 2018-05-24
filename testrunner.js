@@ -45,7 +45,12 @@ describe('test box overlap', function() {
         var parent = [ {x : 50, y: 50}, {x: 90, y: 90} ];
 
         var overlap = computeOverlap(child, parent);
-        assert.deepEqual(overlap, 0);
+        expect(overlap).to.deep.equal(
+            {
+                overlapX: { overlap: 0, childCoverage: 0, parentCoverage: 0 },
+                overlapY: { overlap: 0, childCoverage: 0, parentCoverage: 0 },
+                overlap: 0
+            });
 
     });
 
