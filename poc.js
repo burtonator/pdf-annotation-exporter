@@ -295,6 +295,14 @@ function isWithinBox(box,within) {
 
 }
 
+function isWithinBoxUsingOverlap() {
+
+    // see if ANY percentage of the box is within the given region.
+
+    
+
+}
+
 function assertTrue(value) {
     if (!value)
         throw Error();
