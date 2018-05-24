@@ -5,10 +5,9 @@
     <link rel="stylesheet" href="node_modules/mocha/mocha.css">
 </head>
 <body>
-<div id="mocha"></div>
 <script src="node_modules/mocha/mocha.js"></script>
 <script src="node_modules/chai/chai.js"></script>
-<script>mocha.setup('bdd')</script>
+<script>mocha.setup({ui: 'bdd', hideDiff: false})</script>
 
 <!-- load code you want to test here -->
 
@@ -23,7 +22,14 @@
 </script>
 
 <script>
-    mocha.run();
+    window.onload = function() {
+        mocha.run(function () {
+            console.log("done");
+        });
+    };
 </script>
+
+<div id="mocha"></div>
+
 </body>
 </html>

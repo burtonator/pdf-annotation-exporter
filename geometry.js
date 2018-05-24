@@ -23,7 +23,7 @@ function isOverlapped(child, parent) {
 }
 
 // compute the overlap of two rectangles.
-function computeOverlap(child, parent) {
+function computeOverlapasdf(child, parent) {
 
     // compute the overlap box
 
@@ -41,7 +41,7 @@ function computeOverlap(child, parent) {
  * @param child
  * @param parent
  */
-function computeOverlap2(child, parent) {
+function computeOverlap(child, parent) {
 
     var result = {};
 
@@ -69,10 +69,13 @@ function computeOverlapWithinDimension(child, parent, extractDim) {
         Math.max(extractDim(child[0]), extractDim(parent[0])));
 
     // now compute the child and parent coverage
-    result.childCoverage = result.overlap / extractDim(child);
-
-    result.parentPoverage = result.overlap / extractDim(parent);
+    result.childCoverage = computeDimensionCoverage(result.overlap, child, extractDim);
+    result.parentCoverage = computeDimensionCoverage(result.overlap, parent, extractDim);
 
     return result;
 
+}
+
+function computeDimensionCoverage(overlap,box,extractDim) {
+    return overlap / Math.abs(extractDim(box[0]) - extractDim(box[1]));
 }
