@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>PDF Annotation Extractor</title>
+        <!--<script src="node_modules/systemjs/dist/system.js"></script>-->
+        <!--&lt;!&ndash;<script src="systemjs.config.js"></script>&ndash;&gt;-->
+        <!--<script src="node_modules/pdfjs-dist/lib/pdf.js"></script>-->
+
+        <!-- FIXME: cache this locally in the future -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.489/pdf.js"></script>
+
+        <script>
+            window.onload = function() {
+
+                console.log("Beginning extraction...")
+
+                // https://mozilla.github.io/pdf.js/examples/
+
+                pdfjsLib.getDocument('pdf-examples/test.pdf').then(function(pdf) {
+                    console.log("PDF file loaded")
+
+                    // Fetch the page.
+                    pdf.getPage(1).then(function (page) {
+                        var scale = 4;
+                        var viewport = page.getViewport(scale);
+
+                        // Prepare canvas using PDF page dimensions.
+                        var canvas = document.getElementById('the-canvas');
+                        var context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+
+                        // Render PDF page into canvas context.
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        page.render(renderContext);
+                    } );
+
+                });
+            };
+        </script>
+
+    </head>
+
+    <body>
+        <canvas id="the-canvas" style="border:1px solid black;"/>
+    </body>
+
+</html>

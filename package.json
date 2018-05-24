@@ -10,6 +10,7 @@
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "pdfjs": "^2.0.0-alpha.8",
+    "puppeteer": "^1.4.0",
     "requirejs": "^2.3.5",
     "supports-color": "^5.4.0",
     "systemjs": "^0.21.3",

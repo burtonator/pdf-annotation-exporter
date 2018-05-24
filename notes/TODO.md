@@ -1,4 +1,8 @@
 
+- get my own version of PDF.js working
+- get pupeteer to load the app and take a PDF from the command line
+- set it up to use docker
+
 # copy the full page and then clip it
 
 https://www.kirupa.com/html5/clipping_content_using_css.htm
