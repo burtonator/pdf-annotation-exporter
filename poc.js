@@ -15,6 +15,10 @@
 //
 //
 
+// FIXME: pull out the highlighted words but ALSO pull out a screenshot with
+// context as well the lines of text with context.   This way I can read more about
+// what I was interested in at the time.
+
 
 /**
  * Get the annotations from a specific page.
@@ -63,12 +67,17 @@ function getAnnotations(page, extractionOptions) {
             comment = parsePopupAnnotation(current.popup);
         }
 
-        var linesOfText = getHighlightLinesOfText(page, highlightBox, highlightBoxWithScale, comment, extractionOptions);
-
         var image = null;
+        var linesOfText = [];
 
-        if (! extractionOptions.noAnnotationImages && current.type !== "text" && highlightRegion.area > 0) {
-            image = getHighlightImage(page, highlightBoxWithScale);
+        if (current.type !== 'text') {
+
+            linesOfText = getHighlightLinesOfText(page, highlightBox, highlightBoxWithScale, comment, extractionOptions);
+
+            if (! extractionOptions.noAnnotationImages && highlightRegion.area > 0) {
+                image = getHighlightImage(page, highlightBoxWithScale);
+            }
+
         }
 
         var highlight = createHighlight(highlightBox,
@@ -127,7 +136,7 @@ function getHighlightLinesOfText(page, highlightBox) {
         // console.log("elementRegion: ", elementRegion);
         // console.log("elementBox: ", elementBox);
 
-        if (isWithinBox(elementBox, highlightBox)) {
+        if (isElementHighlighted(elementBox, highlightBox)) {
             // console.log("YES!: " + textElement.outerText);
             linesOfText.push(textElement.outerText);
         }
@@ -285,6 +294,13 @@ function toElementRegion(element) {
     return createRegion(clientRect.left, clientRect.top, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
 }
 
+// return true if the element is highlighted
+function isElementHighlighted(b0,b1) {
+
+    return isOverlapped(b0, b1);
+
+}
+
 // Return true if the first box is within the second box.
 function isWithinBox(box,within) {
 
@@ -295,11 +311,27 @@ function isWithinBox(box,within) {
 
 }
 
-function isWithinBoxUsingOverlap() {
+function isOverlapped(b0, b1) {
 
-    // see if ANY percentage of the box is within the given region.
+    // FIXME we should require that the overlap at LEAST have say a certain
+    // percentage of the Y dimension to be at least 35% of the text.  This way
+    // if we get partial text we still allow it but we don't accidentally pull
+    // in the previous paragraph.
 
-    
+    return computeOverlap(b0,b1) > 0;
+
+}
+
+// compute the overlap of two rectangles.
+function computeOverlap(b0, b1) {
+
+    // compute the overlap box
+    point0 = {x: Math.max( b0.x, b1.x) }
+
+    var x_overlap = Math.max(0, Math.min(b0[1].x, b1[1].x) - Math.max(b0[0].x, b1[0].x));
+    var y_overlap = Math.max(0, Math.min(b0[1].y, b1[1].y) - Math.max(b0[0].y, b1[0].y));
+
+    return x_overlap * y_overlap;
 
 }
 
