@@ -62,9 +62,9 @@ It's able to properly export an image too:
 
 ## Highlight of a normal paragraph
 
-![](example1.png)
+![](examples/example1.png)
 
 ## Highlight using mathematical notation
 
-![](example2.png)
+![](examples/example2.png)
 
