@@ -18,6 +18,10 @@
 // FIXME: pull out the highlighted words but ALSO pull out a screenshot with
 // context as well the lines of text with context.   This way I can read more about
 // what I was interested in at the time.
+//
+// - use vertical screenshot context only.
+//
+//
 
 
 /**
@@ -302,36 +306,78 @@ function isElementHighlighted(b0,b1) {
 }
 
 // Return true if the first box is within the second box.
-function isWithinBox(box,within) {
+function isWithinBox(child,parent) {
 
-    return (box[0].x >= within[0].x &&
-            box[0].y >= within[0].y &&
-            box[1].x <= within[1].x &&
-            box[1].y <= within[1].y);
+    return (child[0].x >= parent[0].x &&
+            child[0].y >= parent[0].y &&
+            child[1].x <= parent[1].x &&
+            child[1].y <= parent[1].y);
 
 }
 
-function isOverlapped(b0, b1) {
+function isOverlapped(child, parent) {
 
     // FIXME we should require that the overlap at LEAST have say a certain
     // percentage of the Y dimension to be at least 35% of the text.  This way
     // if we get partial text we still allow it but we don't accidentally pull
     // in the previous paragraph.
 
-    return computeOverlap(b0,b1) > 0;
+    return computeOverlap(child,parent) > 0;
 
 }
 
 // compute the overlap of two rectangles.
-function computeOverlap(b0, b1) {
+function computeOverlap(child, parent) {
 
     // compute the overlap box
-    point0 = {x: Math.max( b0.x, b1.x) }
 
-    var x_overlap = Math.max(0, Math.min(b0[1].x, b1[1].x) - Math.max(b0[0].x, b1[0].x));
-    var y_overlap = Math.max(0, Math.min(b0[1].y, b1[1].y) - Math.max(b0[0].y, b1[0].y));
+    var x_overlap = Math.max(0, Math.min(child[1].x, parent[1].x) - Math.max(child[0].x, parent[0].x));
+    var y_overlap = Math.max(0, Math.min(child[1].y, parent[1].y) - Math.max(child[0].y, parent[0].y));
 
     return x_overlap * y_overlap;
+
+}
+
+/**
+ * Compute the amount of overlap between parent and child.  Return additional
+ * metadata including the overlap per dimension.
+ * 
+ * @param child
+ * @param parent
+ */
+function computeOverlap2(child, parent) {
+
+    var result = {};
+
+    result.overlapX = computeOverlapWithinDimension(child, parent, function(box) { return box.x;} );
+    result.overlapY = computeOverlapWithinDimension(child, parent, function(box) { return box.y;} );
+
+    result.overlap = result.overlapX.overlap & result.overlapY.overlap;
+
+    return result;
+
+}
+
+/**
+ * Compute the overlap in a specific dimension (x, or y) with the given function.
+ *
+ */
+function computeOverlapWithinDimension(child, parent, extractDim) {
+
+    var result = {};
+
+    // the number of coordinates in the given dimension that are overlapped.
+    result.overlap
+        = Math.max(0,
+                   Math.min(extractDim(child[1]), extractDim(parent[1])) -
+                   Math.max(extractDim(child[0]), extractDim(parent[0])));
+
+    // now compute the child and parent coverage
+    result.childCoverage = result.overlap / extractDim(child);
+
+    result.parentPoverage = result.overlap / extractDim(parent);
+
+    return result;
 
 }
 
