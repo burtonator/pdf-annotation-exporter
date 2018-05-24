@@ -1,0 +1,26 @@
+{
+  "name": "pdf-annotation-exporter",
+  "version": "1.0.0",
+  "description": "PDF Annotation Exporter",
+  "main": "index.html",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "chai": "^4.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/burtonator/pdf-annotation-exporter.git"
+  },
+  "author": "Kevin Burton",
+  "license": "SEE LICENSE IN LICENSE.TXT",
+  "bugs": {
+    "url": "https://github.com/burtonator/pdf-annotation-exporter/issues"
+  },
+  "homepage": "https://github.com/burtonator/pdf-annotation-exporter#readme"
+}
