@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "chai": "^4.1.2",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "pdfjs": "^2.0.0-alpha.8"
   },
   "devDependencies": {},
   "scripts": {
