@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mocha Tests</title>
+    <link rel="stylesheet" href="node_modules/mocha/mocha.css">
+</head>
+<body>
+<div id="mocha"></div>
+<script src="node_modules/mocha/mocha.js"></script>
+<script src="node_modules/chai/chai.js"></script>
+<script>mocha.setup('bdd')</script>
+
+<!-- load code you want to test here -->
+
+<script src="optional.js"></script>
+
+<!-- load your test files here -->
+
+<script>
+
+    describe('Array', function() {
+        it('should start empty', function() {
+            // Test implementation goes here
+        });
+
+        // We can have more its here
+    });
+</script>
+
+<script>
+    mocha.run();
+</script>
+</body>
+</html>
