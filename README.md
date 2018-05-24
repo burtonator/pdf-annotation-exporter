@@ -8,9 +8,7 @@ formatting, (b) have 100% precision, (c) 100% recall, (d) include all annotation
 types, (e) include screenshots of the originals, and (f) extract original markup
 as HTML or SVG that can be used natively in other tools.
 
-# Status
-
-What works:
+# What works:
 
 - I can paste poc.js into a PDF.js loaded PDF and it's able to export the text and
   also the image of the highlighted text.
@@ -18,6 +16,12 @@ What works:
 - Exporting the entire page as a PNG
 
 - Finding the box coordinates around the highlight.
+
+- Extracting the text... 
+
+# What remains:
+
+- Use a standalone PDF.js that I call directly.
 
 ## Text extracted
 
