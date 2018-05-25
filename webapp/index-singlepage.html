@@ -32,6 +32,10 @@
             //
             // https://developers.google.com/web/fundamentals/primers/promises
 
+            let state = {
+                pdf: null
+            }
+
             let extractPromise = new Promise(function(resolve, reject){
 
                 window.onload = function() {
@@ -60,6 +64,15 @@
 
                     });
 
+                    container.addEventListener('pagerendered', function () {
+                        console.log("Page has been rendered..");
+
+                        if (pdfSinglePageViewer.currentPageNumber < state.pdf.numPages) {
+                            ++pdfSinglePageViewer.currentPageNumber;
+                        }
+
+                    });
+
                     console.log("Beginning extraction...")
 
                     // https://mozilla.github.io/pdf.js/examples/
@@ -68,7 +81,9 @@
 
                     // FIXME: enable cmaps support too.
 
-                    pdfjsLib.getDocument('test.pdf').then(function(pdf) {
+                    pdfjsLib.getDocument('test-large.pdf').then(function(pdf) {
+
+                        state.pdf = pdf;
 
                         let numPages = pdf.numPages;
 
