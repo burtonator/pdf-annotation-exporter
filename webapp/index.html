@@ -17,45 +17,65 @@
             //
             // https://developers.google.com/web/fundamentals/primers/promises
 
-            var renderedPromise = new Promise(function(resolve, reject){
+            var extractPromise = new Promise(function(resolve, reject){
+
+                window.onload = function() {
+
+                    console.log("Beginning extraction...")
+
+                    // https://mozilla.github.io/pdf.js/examples/
+
+                    pdfjsLib.getDocument('test.pdf').then(function(pdf) {
+
+                        console.log("PDF file loaded");
+
+                        // Fetch the page.
+                        pdf.getPage(1).then(function (page) {
+
+                            console.log("Fetched page properly");
+
+                            var scale = 4;
+                            var viewport = page.getViewport(scale);
+
+                            // Prepare canvas using PDF page dimensions.
+                            var canvas = document.getElementById('the-canvas');
+                            var context = canvas.getContext('2d');
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+
+                            // Render PDF page into canvas context.
+                            var renderContext = {
+                                canvasContext: context,
+                                viewport: viewport
+                            };
+
+                            page.render(renderContext);
+
+                            resolve({ourData: 'this is our data!'});
+
+                        }, function(reason) {
+                            reject(reason);
+                        } );
+
+                    }, function (reason) {
+                        reject(reason);
+                    });
+                };
 
             });
 
-            window.onload = function() {
+            extractPromise.then(function(extraction) {
+                console.log("Got our JSON properly!", extraction);
+            }, function (reason) {
+                console.log("Failed to properly handle extraction: ", reason);
+            });
 
-                console.log("Beginning extraction...")
+            extractPromise.then(function(extraction) {
+                console.log("Got our JSON properly!", extraction);
+            }, function (reason) {
+                console.log("Failed to properly handle extraction: ", reason);
+            });
 
-                // https://mozilla.github.io/pdf.js/examples/
-
-                pdfjsLib.getDocument('test.pdf').then(function(pdf) {
-                    console.log("PDF file loaded")
-
-                    // Fetch the page.
-                    pdf.getPage(1).then(function (page) {
-                        var scale = 4;
-                        var viewport = page.getViewport(scale);
-
-                        // Prepare canvas using PDF page dimensions.
-                        var canvas = document.getElementById('the-canvas');
-                        var context = canvas.getContext('2d');
-                        canvas.height = viewport.height;
-                        canvas.width = viewport.width;
-
-                        // Render PDF page into canvas context.
-                        var renderContext = {
-                            canvasContext: context,
-                            viewport: viewport
-                        };
-
-                        page.render(renderContext);
-
-
-
-
-                    } );
-
-                });
-            };
         </script>
 
     </head>
