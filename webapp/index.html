@@ -8,14 +8,13 @@
         <!-- FIXME: cache this locally in the future -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.489/pdf.js"></script>
 
-
-
         <script>
 
             // FIXME: setup a promise here so that chromium can call the function
             // and get an exception or the content we want
             //
             // https://developers.google.com/web/fundamentals/primers/promises
+
 
             var extractPromise = new Promise(function(resolve, reject){
 
@@ -27,35 +26,60 @@
 
                     pdfjsLib.getDocument('test.pdf').then(function(pdf) {
 
-                        console.log("PDF file loaded");
+                        var numPages = pdf.numPages;
 
-                        // Fetch the page.
-                        pdf.getPage(1).then(function (page) {
+                        console.log(`PDF file loaded with ${numPages} pages`);
 
-                            console.log("Fetched page properly");
+                        // FIXME: now I need to look through EVERY page to make
+                        // sure the performance of LARGE books is reasonable.
 
-                            var scale = 4;
-                            var viewport = page.getViewport(scale);
+                        var pagePromises = [];
+                        var pagePromise;
 
-                            // Prepare canvas using PDF page dimensions.
-                            var canvas = document.getElementById('the-canvas');
-                            var context = canvas.getContext('2d');
-                            canvas.height = viewport.height;
-                            canvas.width = viewport.width;
+                        for (var pageIdx = 1; pageIdx <= numPages; ++pageIdx) {
+                            pagePromise = pdf.getPage(pageIdx);
+                            pagePromises.push(pagePromise);
+                        }
 
-                            // Render PDF page into canvas context.
-                            var renderContext = {
-                                canvasContext: context,
-                                viewport: viewport
-                            };
+                        var failed = false;
 
-                            page.render(renderContext);
+                        for (var idx = 0; idx < pagePromises.length; ++idx) {
 
+                            pagePromise = pagePromises[idx];
+
+                            if (failed)
+                                break;
+
+                            pagePromise.then(function (page) {
+
+                                console.log(`Rendered page: ${idx}`);
+
+                                var scale = 4;
+                                var viewport = page.getViewport(scale);
+
+                                // Prepare canvas using PDF page dimensions.
+                                var canvas = document.getElementById('the-canvas');
+                                var context = canvas.getContext('2d');
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+
+                                // Render PDF page into canvas context.
+                                var renderContext = {
+                                    canvasContext: context,
+                                    viewport: viewport
+                                };
+
+                                page.render(renderContext);
+
+                            }, function(reason) {
+                                reject(reason);
+                                failed = true;
+                            } );
+
+                            // we're done all the pages... 
                             resolve({ourData: 'this is our data!'});
 
-                        }, function(reason) {
-                            reject(reason);
-                        } );
+                        }
 
                     }, function (reason) {
                         reject(reason);
