@@ -453,8 +453,8 @@ function createExtractionOptions() {
     return {noPageImages: false, noAnnotationImages: false};
 }
 
-var result = doExtraction(createExtractionOptions());
+//var result = doExtraction(createExtractionOptions());
 
-console.log(JSON.stringify(result, null, "  "));
+//console.log(JSON.stringify(result, null, "  "));
 
 

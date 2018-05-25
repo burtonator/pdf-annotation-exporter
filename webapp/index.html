@@ -8,14 +8,26 @@
         <!-- FIXME: cache this locally in the future -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.489/pdf.js"></script>
 
+
+
         <script>
+
+            // FIXME: setup a promise here so that chromium can call the function
+            // and get an exception or the content we want
+            //
+            // https://developers.google.com/web/fundamentals/primers/promises
+
+            var renderedPromise = new Promise(function(resolve, reject){
+
+            });
+
             window.onload = function() {
 
                 console.log("Beginning extraction...")
 
                 // https://mozilla.github.io/pdf.js/examples/
 
-                pdfjsLib.getDocument('pdf-examples/test.pdf').then(function(pdf) {
+                pdfjsLib.getDocument('test.pdf').then(function(pdf) {
                     console.log("PDF file loaded")
 
                     // Fetch the page.
@@ -34,7 +46,12 @@
                             canvasContext: context,
                             viewport: viewport
                         };
+
                         page.render(renderContext);
+
+
+
+
                     } );
 
                 });
