@@ -13,6 +13,22 @@ function getExtractPromise() {
     return extractPromise;
 }
 
+/**
+ * Create the promise within chrome, wait for the results, then return the
+ * results throw an error to the caller. This allows puppet to push the promise
+ * work into chrome as I'm fairly sure the promises won't work across process
+ * boundaries.
+ */
+function waitForResults() {
+
+    createExtractPromise().then(function(extraction) {
+        return extraction;
+    }, function (reason) {
+        throw reason;
+    });
+
+}
+
 function createExtractPromise() {
 
     return new Promise(function(resolve, reject) {
