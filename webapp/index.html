@@ -24,6 +24,8 @@
 
                     // https://mozilla.github.io/pdf.js/examples/
 
+                    // ok.. test-large WORKS but it might be TOO fast... 
+
                     pdfjsLib.getDocument('test.pdf').then(function(pdf) {
 
                         var numPages = pdf.numPages;
@@ -58,7 +60,12 @@
                                 var viewport = page.getViewport(scale);
 
                                 // Prepare canvas using PDF page dimensions.
-                                var canvas = document.getElementById('the-canvas');
+                                var canvas = document.getElementById('canvas-template');
+                                canvas = canvas.cloneNode(true);
+
+                                canvas.style.visibility = 'visible';
+                                document.body.appendChild(canvas);
+
                                 var context = canvas.getContext('2d');
                                 canvas.height = viewport.height;
                                 canvas.width = viewport.width;
@@ -70,6 +77,9 @@
                                 };
 
                                 page.render(renderContext);
+
+                                // now remove the canvas that we added
+                                document.body.removeChild(canvas);
 
                             }, function(reason) {
                                 reject(reason);
@@ -105,7 +115,9 @@
     </head>
 
     <body>
-        <canvas id="the-canvas" style="border:1px solid black;"/>
+
+        <canvas id="canvas-template" style="border:1px solid black; visibility: hidden;"/>
+
     </body>
 
 </html>
