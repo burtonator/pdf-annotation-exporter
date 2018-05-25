@@ -19,6 +19,9 @@
         <script src="../node_modules/pdfjs-dist/build/pdf.js"></script>
         <script src="../node_modules/pdfjs-dist/build/pdf.worker.js"></script>
         <script src="../node_modules/pdfjs-dist/web/pdf_viewer.js"></script>
+        <script src="js/geometry.js"></script>
+        <script src="js/optional.js"></script>
+        <script src="js/extractor.js"></script>
 
         <!-- the pdf.js/examples/components/singlepageviewer.html is a good example
              to explain how this works.  -->
@@ -65,7 +68,13 @@
                     });
 
                     container.addEventListener('pagerendered', function () {
+
                         console.log("Page has been rendered..");
+
+                        let extractionOptions = createExtractionOptions();
+                        let pageAnnotations = doExtraction(extractionOptions);
+
+                        console.log("Found page annotations: ", pageAnnotations);
 
                         if (pdfSinglePageViewer.currentPageNumber < state.pdf.numPages) {
                             ++pdfSinglePageViewer.currentPageNumber;
@@ -81,7 +90,9 @@
 
                     // FIXME: enable cmaps support too.
 
-                    pdfjsLib.getDocument('test-large.pdf').then(function(pdf) {
+                    let pdfURL = 'test.pdf';
+
+                    pdfjsLib.getDocument(pdfURL).then(function(pdf) {
 
                         state.pdf = pdf;
 
