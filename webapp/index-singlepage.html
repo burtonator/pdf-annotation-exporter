@@ -9,10 +9,17 @@
         <!--<script src="node_modules/pdfjs-dist/lib/pdf.js"></script>-->
 
         <!-- FIXME: cache this locally in the future -->
+
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.489/pdf.js"></script>
+
+        <!-- FIXME: don't combine pdfjs-dist and the CDN libs -->
+        <script src="../node_modules/pdfjs-dist/web/pdf_viewer.js"></script>
 
         <!-- the pdf.js/examples/components/singlepageviewer.html is a good example
              to explain how this works.  -->
+
+        <link rel="stylesheet" href="../node_modules/pdfjs-dist/web/pdf_viewer.css">
 
         <script>
 
@@ -21,10 +28,22 @@
             //
             // https://developers.google.com/web/fundamentals/primers/promises
 
-
             let extractPromise = new Promise(function(resolve, reject){
 
                 window.onload = function() {
+
+                    let container = document.getElementById('viewerContainer');
+
+                    console.log("Going to render in: ", container);
+
+                    let pdfSinglePageViewer = new pdfjsViewer.PDFSinglePageViewer(
+                        {
+                            container: container,
+                        });
+
+                    container.addEventListener('pagesinit', function () {
+                        pdfSinglePageViewer.currentScaleValue = 'page-width';
+                    });
 
                     console.log("Beginning extraction...")
 
@@ -40,66 +59,7 @@
 
                         console.log(`PDF file loaded with ${numPages} pages`);
 
-                        // FIXME: now I need to look through EVERY page to make
-                        // sure the performance of LARGE books is reasonable.
-
-                        let pagePromises = [];
-                        let pagePromise;
-
-                        for (let pageIdx = 1; pageIdx <= numPages; ++pageIdx) {
-                            pagePromise = pdf.getPage(pageIdx);
-                            pagePromises.push(pagePromise);
-                        }
-
-                        let failed = false;
-
-                        for (let idx = 0; idx < pagePromises.length; ++idx) {
-
-                            pagePromise = pagePromises[idx];
-
-                            if (failed)
-                                break;
-
-                            pagePromise.then(function (page) {
-
-                                // FIXME: move this to a handlePage function
-
-                                console.log(`Rendered page: ${idx}`);
-
-                                let scale = 4;
-                                let viewport = page.getViewport(scale);
-
-                                // Prepare canvas using PDF page dimensions.
-                                let canvas = document.getElementById('canvas-template');
-                                canvas = canvas.cloneNode(true);
-
-                                canvas.style.visibility = 'visible';
-                                document.body.appendChild(canvas);
-
-                                let context = canvas.getContext('2d');
-                                canvas.height = viewport.height;
-                                canvas.width = viewport.width;
-
-                                // Render PDF page into canvas context.
-                                let renderContext = {
-                                    canvasContext: context,
-                                    viewport: viewport
-                                };
-
-                                page.render(renderContext);
-
-                                // now remove the canvas that we added
-                                document.body.removeChild(canvas);
-
-                            }, function(reason) {
-                                reject(reason);
-                                failed = true;
-                            } );
-
-                            // we're done all the pages...
-                            resolve({ourData: 'this is our data!'});
-
-                        }
+                        pdfSinglePageViewer.setDocument(pdf);
 
                     }, function (reason) {
                         reject(reason);
