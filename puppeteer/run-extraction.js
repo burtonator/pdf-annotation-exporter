@@ -13,6 +13,8 @@ var options = {executablePath: "/usr/bin/chromium-browser"};
 
     // now how do we extract the resulting JSON from the page?
 
+    //waitForResults("test.pdf");
+
     await browser.close();
-    
+
 })();

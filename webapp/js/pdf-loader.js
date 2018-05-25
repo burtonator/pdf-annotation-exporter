@@ -29,7 +29,7 @@ function waitForResults() {
 
 }
 
-function createExtractPromise() {
+function createExtractPromise(pdfURL) {
 
     return new Promise(function(resolve, reject) {
 
@@ -81,9 +81,6 @@ function createExtractPromise() {
             // ok.. test-large WORKS but it might be TOO fast...
 
             // FIXME: enable cmaps support too.
-
-            // FIXME: take the URL via parameter of some sort...
-            let pdfURL = 'test.pdf';
 
             pdfjsLib.getDocument(pdfURL).then(function(pdf) {
 
