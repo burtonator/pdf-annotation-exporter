@@ -20,8 +20,9 @@ function waitForResults(src) {
 
 function waitForResultsFromBuffer(src, buffer) {
 
-    // chromium is messing up the encoding here
     if(buffer) {
+        // chromium is messing up the encoding here when using a byte array
+        // and not sure why. This is just a workaround to bypass that problem.
         src.data = buffer.data;
     }
 
@@ -91,7 +92,7 @@ function createExtractPromise(src) {
 
         // ok.. test-large WORKS but it might be TOO fast...
 
-        // FIXME: enable cmaps support too.
+        // FIXME: enable cmaps support too.  the singlepage viewer has an example.
 
         pdfjsLib.getDocument(src).then(function(pdf) {
 
