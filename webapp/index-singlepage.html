@@ -10,10 +10,14 @@
 
         <!-- FIXME: cache this locally in the future -->
 
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.489/pdf.js"></script>-->
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.489/web/pdf_viewer.js"></script>-->
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.489/pdf.js"></script>
+        <!-- FIXME: now I need to grock imports, exports, require, webpack, -->
 
         <!-- FIXME: don't combine pdfjs-dist and the CDN libs -->
+        <script src="../node_modules/pdfjs-dist/build/pdf.js"></script>
+        <script src="../node_modules/pdfjs-dist/build/pdf.worker.js"></script>
         <script src="../node_modules/pdfjs-dist/web/pdf_viewer.js"></script>
 
         <!-- the pdf.js/examples/components/singlepageviewer.html is a good example
@@ -22,8 +26,6 @@
         <link rel="stylesheet" href="../node_modules/pdfjs-dist/web/pdf_viewer.css">
 
         <script>
-
-
 
             // FIXME: setup a promise here so that chromium can call the function
             // and get an exception or the content we want
@@ -48,6 +50,12 @@
                     container.addEventListener('pagesinit', function () {
                         console.log("Setting current scale view");
                         pdfSinglePageViewer.currentScaleValue = 'page-width';
+
+                        //pdfSinglePageViewer.defaultRenderingQueue.pop();
+
+                        //console.log(pdfSinglePageViewer.renderingQueue);
+                        //pdfSinglePageViewer.update();
+
                     });
 
                     console.log("Beginning extraction...")
@@ -58,17 +66,17 @@
 
                     // FIXME: enable cmaps support too.
 
-                    pdfjsLib.setDocument('test.pdf').then(function(pdf) {
+                    pdfjsLib.getDocument('test.pdf').then(function(pdf) {
 
                         let numPages = pdf.numPages;
 
                         console.log(`PDF file loaded with ${numPages} pages`);
 
-                        pdfSinglePageViewer.myLoadDocument(pdf);
+                        pdfSinglePageViewer.setDocument(pdf);
 
-                        // FIXME: setDocument doesn't give us any way to know when it is done...
-
-                        pdfSinglePageViewer.firstPagePromise.then()
+                        // // FIXME: setDocument doesn't give us any way to know when it is done...
+                        //
+                        // pdfSinglePageViewer.firstPagePromise.then()
 
                         // if (this.defaultRenderingQueue) {
                         //     this.update();
@@ -108,7 +116,6 @@
                 height: 100%;
             }
         </style>
-
 
     </head>
 
