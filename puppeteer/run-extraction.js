@@ -1,20 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-function toArrayBuffer(buffer) {
-    let ab = new ArrayBuffer(buffer.length);
-    let view = new Uint8Array(ab);
-    for (let i = 0; i < buffer.length; ++i) {
-        view[i] = buffer[i];
-    }
-    return ab;
-}
-
-function toUint8Array(buff) {
-    return buff.buffer;
-}
-
-
 // TODO: this will have to be fixed when running within docker.
 var options = {executablePath: "/usr/bin/chromium-browser",
                args: ["--disable-web-security", " --allow-file-access-from-files", "--user-data-dir=/tmp"] };
@@ -25,22 +11,13 @@ var options = {executablePath: "/usr/bin/chromium-browser",
 
     //let pdfURL = "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf";
 
-    // FIXME: I could also try using a 'worker' .. instanceof Uint8Array
+    // TODO: I could also try using a 'worker' in the future instead of a
+    // readFileSync as it might be a bit faster but also more complicated because
+    // I'm basically passing a whole object over into chromium.  I might be
+    // able to make this work by passing a file URL and having the worker read
+    // from it directly and pass it to the fetch() API which is what is complaining.
 
-    // the PDF document src.
-    let src = {};
-
-    let rawFileData = fs.readFileSync(pdfURL);
-    let data = rawFileData;
-
-    console.log("FIXME: rawFileData is correct array: " + (rawFileData instanceof Uint8Array));
-
-    // let data = toUint8Array(rawFileData);
-
-    console.log("FIXME: data is correct array: " + (data instanceof Uint8Array));
-
-    console.log("FIXME: " + data.byteLength);
-    console.log("FIXME99: " + data.data);
+    let data = fs.readFileSync(pdfURL);
 
     src = { data };
     // src = pdfURL;
