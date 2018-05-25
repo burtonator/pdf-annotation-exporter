@@ -1,15 +1,46 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
-var fileUrl = require('file-url');
+const fileUrl = require('file-url');
+const getopt = require('node-getopt')
+const process = require('process')
 
 // TODO: this will have to be fixed when running within docker.
-var options = {executablePath: "/usr/bin/chromium-browser",
+let options = {executablePath: "/usr/bin/chromium-browser",
                args: ["--disable-web-security", " --allow-file-access-from-files", "--user-data-dir=/tmp"] };
+
+// TODO: I don't like this command line option handling.
+opt = getopt.create([
+                        ['I' , 'input=ARG'    , 'Input path or URL'],
+                        ['v' , 'verbose'      , 'Enable verbose output of progress'],
+                        ['h' , 'help'         , 'display this help']
+                    ])
+            .bindHelp()
+            .parseSystem();
+
+function isVerbose() {
+    return opt.options.verbose;
+}
+
+function trace(msg, ...args) {
+    // TODO: we should be using some sort of log framework for this so that
+    // we can print to a better log stream.
+    if (isVerbose()) {
+        // TODO: console.log should go to stderr and probably not be enabled by default..
+        console.log(msg, args);
+    }
+}
 
 (async() => {
 
-    let pdfURL = "webapp/test.pdf";
+    let pdfURL = opt.options.input;
+
+    // TODO: take an --output path optionally as it might be nice to print
+    // progress to stdout as we are extracting pages
+
+    // TODO: it might make sense to register an event listener within chromium
+    // so puppeteer gets callbacks for each page so we can just stream annotations
+    // to a file one at a time.
 
     //let pdfURL = "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf";
 
@@ -34,15 +65,15 @@ var options = {executablePath: "/usr/bin/chromium-browser",
 
     const browser = await puppeteer.launch(options);
 
-    console.log(await browser.version());
+    trace(await browser.version());
 
-    console.log("Loading extraction webapp");
+    trace("Loading extraction webapp");
 
     const page = await browser.newPage();
 
     page.on('console', msg => {
         // listen to the log messages in chromium headless.
-        console.log(msg);
+        trace(msg);
     });
 
     // for some reason absolute file URLs are required here.
@@ -51,11 +82,10 @@ var options = {executablePath: "/usr/bin/chromium-browser",
 
     await page.goto(indexURL, {waitUntil: 'load'});
 
-    console.log("Waiting for results...");
+    trace("Waiting for results...");
 
     // the data is getting passed over incorrectly as an 'object' for src.data.
     let extraction = await page.evaluate(async (src,data) => {
-        console.log("Loading src: " + src);
         return waitForResultsFromBuffer(src, data);
     }, src, data);
 
