@@ -13,15 +13,26 @@ let state = {
  * work into chrome as I'm fairly sure the promises won't work across process
  * boundaries.
  */
-function waitForResults(pdfURL) {
+function waitForResults(src) {
+    return waitForResultsFromBuffer(src, null);
 
-    return createExtractPromise(pdfURL).then(function(extraction) {
-        return extraction;
+}
+
+function waitForResultsFromBuffer(src, buffer) {
+
+    // chromium is messing up the encoding here
+    if(buffer) {
+        src.data = buffer.data;
+    }
+
+    return createExtractPromise(src).then(function(extraction) {
+        return JSON.stringify(extraction, null, "  ");
     }, function (reason) {
         throw reason;
     });
 
 }
+
 
 /**
  *
