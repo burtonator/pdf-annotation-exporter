@@ -1,6 +1,7 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
         <title>PDF Annotation Extractor</title>
         <!--<script src="node_modules/systemjs/dist/system.js"></script>-->
@@ -32,6 +33,12 @@
 
                     // FIXME: enable cmaps support too.
 
+                    // const alwaysRemoveChildren = true;
+                    // const maxRenderedPages = 9999;
+
+                    const alwaysRemoveChildren = false;
+                    const maxRenderedPages = 1;
+
                     pdfjsLib.getDocument('test.pdf').then(function(pdf) {
 
                         let numPages = pdf.numPages;
@@ -51,7 +58,7 @@
 
                         let failed = false;
 
-                        for (let idx = 0; idx < pagePromises.length; ++idx) {
+                        for (let idx = 0; idx < Math.min(maxRenderedPages, pagePromises.length); ++idx) {
 
                             pagePromise = pagePromises[idx];
 
@@ -64,7 +71,7 @@
 
                                 console.log(`Rendered page: ${idx}`);
 
-                                let scale = 4;
+                                let scale = 8;
                                 let viewport = page.getViewport(scale);
 
                                 // Prepare canvas using PDF page dimensions.
@@ -87,7 +94,9 @@
                                 page.render(renderContext);
 
                                 // now remove the canvas that we added
-                                document.body.removeChild(canvas);
+                                if(alwaysRemoveChildren) {
+                                    document.body.removeChild(canvas);
+                                }
 
                             }, function(reason) {
                                 reject(reason);

@@ -23,6 +23,8 @@
 
         <script>
 
+
+
             // FIXME: setup a promise here so that chromium can call the function
             // and get an exception or the content we want
             //
@@ -41,7 +43,10 @@
                             container: container,
                         });
 
+                    //pdfSinglePageViewer.myLoadDocument = myLoadDocument;
+
                     container.addEventListener('pagesinit', function () {
+                        console.log("Setting current scale view");
                         pdfSinglePageViewer.currentScaleValue = 'page-width';
                     });
 
@@ -53,13 +58,21 @@
 
                     // FIXME: enable cmaps support too.
 
-                    pdfjsLib.getDocument('test.pdf').then(function(pdf) {
+                    pdfjsLib.setDocument('test.pdf').then(function(pdf) {
 
                         let numPages = pdf.numPages;
 
                         console.log(`PDF file loaded with ${numPages} pages`);
 
-                        pdfSinglePageViewer.setDocument(pdf);
+                        pdfSinglePageViewer.myLoadDocument(pdf);
+
+                        // FIXME: setDocument doesn't give us any way to know when it is done...
+
+                        pdfSinglePageViewer.firstPagePromise.then()
+
+                        // if (this.defaultRenderingQueue) {
+                        //     this.update();
+                        // }
 
                     }, function (reason) {
                         reject(reason);
