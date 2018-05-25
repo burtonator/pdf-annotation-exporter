@@ -7,21 +7,15 @@ let state = {
     }
 };
 
-extractPromise = createExtractPromise();
-
-function getExtractPromise() {
-    return extractPromise;
-}
-
 /**
  * Create the promise within chrome, wait for the results, then return the
  * results throw an error to the caller. This allows puppet to push the promise
  * work into chrome as I'm fairly sure the promises won't work across process
  * boundaries.
  */
-function waitForResults() {
+function waitForResults(pdfURL) {
 
-    createExtractPromise().then(function(extraction) {
+    return createExtractPromise(pdfURL).then(function(extraction) {
         return extraction;
     }, function (reason) {
         throw reason;
@@ -29,78 +23,83 @@ function waitForResults() {
 
 }
 
-function createExtractPromise(pdfURL) {
+/**
+ *
+ * @param src The source of the document.  See getDocument in pdf.js as this
+ * is a type object with numerous parameters.
+ * https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L112
+ *
+ * @returns {Promise<any>}
+ */
+function createExtractPromise(src) {
 
     return new Promise(function(resolve, reject) {
 
-        window.onload = function() {
+        let container = document.getElementById('viewerContainer');
 
-            let container = document.getElementById('viewerContainer');
+        console.log("Going to render in: ", container);
 
-            console.log("Going to render in: ", container);
-
-            let pdfSinglePageViewer = new pdfjsViewer.PDFSinglePageViewer(
-                {
-                    container: container,
-                });
-
-            container.addEventListener('pagesinit', function () {
-                console.log("Setting current scale view");
-                pdfSinglePageViewer.currentScaleValue = 'page-width';
+        let pdfSinglePageViewer = new pdfjsViewer.PDFSinglePageViewer(
+            {
+                container: container,
             });
 
-            container.addEventListener('pagerendered', function () {
+        container.addEventListener('pagesinit', function () {
+            console.log("Setting current scale view");
+            pdfSinglePageViewer.currentScaleValue = 'page-width';
+        });
 
-                console.log("Page has been rendered..");
+        container.addEventListener('pagerendered', function () {
 
-                let extractionOptions = createExtractionOptions();
-                let pageAnnotations = doExtraction(extractionOptions);
+            console.log("Page has been rendered..");
 
-                state.pageAnnotations.pages.push(...pageAnnotations.pages);
+            let extractionOptions = createExtractionOptions();
+            let pageAnnotations = doExtraction(extractionOptions);
 
-                console.log("Found page annotations: ", pageAnnotations);
+            state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
-                if (pdfSinglePageViewer.currentPageNumber < state.pdf.numPages) {
-                    ++pdfSinglePageViewer.currentPageNumber;
-                } else {
+            console.log("Found page annotations: ", pageAnnotations);
 
-                    // we're done with our extraction.
-                    resolve(state.pageAnnotations);
+            if (pdfSinglePageViewer.currentPageNumber < state.pdf.numPages) {
+                ++pdfSinglePageViewer.currentPageNumber;
+            } else {
 
-                }
+                // we're done with our extraction.
+                resolve(state.pageAnnotations);
 
-            });
+            }
 
-            console.log("Beginning extraction...")
+        });
 
-            // Documentation on how to load PDFs into the single page
-            // viewer is located here:
-            //
-            // https://mozilla.github.io/pdf.js/examples/
+        console.log("Beginning extraction...")
 
-            // ok.. test-large WORKS but it might be TOO fast...
+        // Documentation on how to load PDFs into the single page
+        // viewer is located here:
+        //
+        // https://mozilla.github.io/pdf.js/examples/
 
-            // FIXME: enable cmaps support too.
+        // ok.. test-large WORKS but it might be TOO fast...
 
-            pdfjsLib.getDocument(pdfURL).then(function(pdf) {
+        // FIXME: enable cmaps support too.
 
-                state.pdf = pdf;
+        pdfjsLib.getDocument(src).then(function(pdf) {
 
-                let numPages = pdf.numPages;
+            state.pdf = pdf;
 
-                console.log(`PDF file loaded with ${numPages} pages`);
+            let numPages = pdf.numPages;
 
-                // setDocument kicks off the event processing stream for
-                // loading the pages.  It will only load the first one
-                // and then we just page through them once we receive
-                // the event that the first one has loaded.
-                pdfSinglePageViewer.setDocument(pdf);
+            console.log(`PDF file loaded with ${numPages} pages`);
 
-            }, function (reason) {
-                reject(reason);
-            });
-        };
+            // setDocument kicks off the event processing stream for
+            // loading the pages.  It will only load the first one
+            // and then we just page through them once we receive
+            // the event that the first one has loaded.
+            pdfSinglePageViewer.setDocument(pdf);
 
+        }, function (reason) {
+            console.error("Unable to load PDF: ", reason);
+            reject(reason);
+        });
     });
 
 }
