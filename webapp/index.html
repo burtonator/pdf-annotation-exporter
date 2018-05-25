@@ -4,136 +4,56 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
         <title>PDF Annotation Extractor</title>
-        <!--<script src="node_modules/systemjs/dist/system.js"></script>-->
-        <!--&lt;!&ndash;<script src="systemjs.config.js"></script>&ndash;&gt;-->
-        <!--<script src="node_modules/pdfjs-dist/lib/pdf.js"></script>-->
 
-        <!-- FIXME: cache this locally in the future -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.489/pdf.js"></script>
+        <script src="../node_modules/pdfjs-dist/build/pdf.js"></script>
+        <script src="../node_modules/pdfjs-dist/build/pdf.worker.js"></script>
+        <script src="../node_modules/pdfjs-dist/web/pdf_viewer.js"></script>
+        <script src="js/geometry.js"></script>
+        <script src="js/optional.js"></script>
+        <script src="js/extractor.js"></script>
+        <script src="js/pdf-loader.js"></script>
 
-        <!-- the pdf.js/examples/components/singlepageviewer.html is a good example
-             to explain how this works.  -->
+        <link rel="stylesheet" href="../node_modules/pdfjs-dist/web/pdf_viewer.css">
 
         <script>
 
-            // FIXME: setup a promise here so that chromium can call the function
-            // and get an exception or the content we want
-            //
-            // https://developers.google.com/web/fundamentals/primers/promises
-
-            let extractPromise = new Promise(function(resolve, reject){
-
-                window.onload = function() {
-
-                    console.log("Beginning extraction...")
-
-                    // https://mozilla.github.io/pdf.js/examples/
-
-                    // ok.. test-large WORKS but it might be TOO fast...
-
-                    // FIXME: enable cmaps support too.
-
-                    // const alwaysRemoveChildren = true;
-                    // const maxRenderedPages = 9999;
-
-                    const alwaysRemoveChildren = false;
-                    const maxRenderedPages = 1;
-
-                    pdfjsLib.getDocument('test.pdf').then(function(pdf) {
-
-                        let numPages = pdf.numPages;
-
-                        console.log(`PDF file loaded with ${numPages} pages`);
-
-                        // FIXME: now I need to look through EVERY page to make
-                        // sure the performance of LARGE books is reasonable.
-
-                        let pagePromises = [];
-                        let pagePromise;
-
-                        for (let pageIdx = 1; pageIdx <= numPages; ++pageIdx) {
-                            pagePromise = pdf.getPage(pageIdx);
-                            pagePromises.push(pagePromise);
-                        }
-
-                        let failed = false;
-
-                        for (let idx = 0; idx < Math.min(maxRenderedPages, pagePromises.length); ++idx) {
-
-                            pagePromise = pagePromises[idx];
-
-                            if (failed)
-                                break;
-
-                            pagePromise.then(function (page) {
-
-                                // FIXME: move this to a handlePage function
-
-                                console.log(`Rendered page: ${idx}`);
-
-                                let scale = 8;
-                                let viewport = page.getViewport(scale);
-
-                                // Prepare canvas using PDF page dimensions.
-                                let canvas = document.getElementById('canvas-template');
-                                canvas = canvas.cloneNode(true);
-
-                                canvas.style.visibility = 'visible';
-                                document.body.appendChild(canvas);
-
-                                let context = canvas.getContext('2d');
-                                canvas.height = viewport.height;
-                                canvas.width = viewport.width;
-
-                                // Render PDF page into canvas context.
-                                let renderContext = {
-                                    canvasContext: context,
-                                    viewport: viewport
-                                };
-
-                                page.render(renderContext);
-
-                                // now remove the canvas that we added
-                                if(alwaysRemoveChildren) {
-                                    document.body.removeChild(canvas);
-                                }
-
-                            }, function(reason) {
-                                reject(reason);
-                                failed = true;
-                            } );
-
-                            // we're done all the pages...
-                            resolve({ourData: 'this is our data!'});
-
-                        }
-
-                    }, function (reason) {
-                        reject(reason);
-                    });
-                };
-
-            });
+            let extractPromise = createExtractPromise();
 
             extractPromise.then(function(extraction) {
-                console.log("Got our JSON properly!", extraction);
+                console.log("Got our JSON properly: ", extraction);
             }, function (reason) {
                 console.log("Failed to properly handle extraction: ", reason);
             });
 
             extractPromise.then(function(extraction) {
-                console.log("Got our JSON properly!", extraction);
+                console.log("Got our JSON properly: ", extraction);
             }, function (reason) {
                 console.log("Failed to properly handle extraction: ", reason);
             });
 
         </script>
 
+        <style>
+            body {
+                background-color: #808080;
+                margin: 0;
+                padding: 0;
+            }
+            #viewerContainer {
+                overflow: auto;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+
     </head>
 
     <body>
 
-        <canvas id="canvas-template" style="border:1px solid black; visibility: hidden;"></canvas>
+        <div id="viewerContainer">
+            <div id="viewer" class="pdfViewer"></div>
+        </div>
 
     </body>
 
