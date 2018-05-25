@@ -97,7 +97,7 @@
 
                                 console.log(`Rendered page: ${pagePromise.pageNum}`);
 
-                                let scale = 8;
+                                let scale = 2;
                                 let viewport = page.getViewport(scale);
 
                                 // Prepare canvas using PDF page dimensions.
@@ -149,6 +149,11 @@
 
                                     //page.render(pageView);
                                     pageView.draw();
+
+                                    if (pdfSinglePageViewer.defaultRenderingQueue) {
+                                        console.log("updating!")
+                                        pdfSinglePageViewer.update();
+                                    }
 
                                 } else {
 
