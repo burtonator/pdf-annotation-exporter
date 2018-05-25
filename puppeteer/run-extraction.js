@@ -1,5 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const path = require('path');
+var fileUrl = require('file-url');
 
 // TODO: this will have to be fixed when running within docker.
 var options = {executablePath: "/usr/bin/chromium-browser",
@@ -43,11 +45,11 @@ var options = {executablePath: "/usr/bin/chromium-browser",
         console.log(msg);
     });
 
-    // FIXME: we must be able to load from a relative URL here.
+    // for some reason absolute file URLs are required here.
+    let indexPath = path.resolve("webapp/index.html");
+    let indexURL = fileUrl(indexPath);
 
-    // FIXME: won't wait until networkidle2 I think.. wait for page load is fine.
-    await page.goto('file:///home/burton/projects/pdf-annotation-exporter/webapp/index.html', {waitUntil: 'networkidle2'});
-    // await page.goto('about:blank', {waitUntil: 'networkidle2'});
+    await page.goto(indexURL, {waitUntil: 'load'});
 
     console.log("Waiting for results...");
 
