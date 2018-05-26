@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# command line that just executes our extraction
+
+# get the path to myself so that I can find the directory where we're installed
+scriptPath=$(realpath "${0}")
+scriptDir=$(dirname "${scriptPath}")
+
+nodejs "${scriptDir}"/../nodejs/annotations2html.js "$@"
+

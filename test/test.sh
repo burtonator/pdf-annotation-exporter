@@ -5,8 +5,9 @@
 for pdf in pdf/*.pdf; do
     echo ${pdf}
     name=$(basename "${pdf}" | grep -Eo '^[^.]+')
-    echo ${name}
+    #echo ${name}
 
-    nodejs puppeteer/run-extraction.js
+    ../bin/pdf-annotation-exporter "${pdf}" > json/"${name}".json
+    ../bin/annotations2html json/"${name}".json > html/"${name}".html
 
 done
