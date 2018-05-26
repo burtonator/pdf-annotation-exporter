@@ -80,8 +80,6 @@ function getAnnotations(page, extractionOptions) {
 
         if (current.type !== 'text') {
 
-            console.log("FIXME7");
-
             linesOfText = getHighlightLinesOfText(page, highlightBox, highlightBoxWithScale, comment, extractionOptions);
 
             if (! extractionOptions.noAnnotationImages && highlightRegion.area > 0) {
@@ -141,9 +139,6 @@ function getHighlightLinesOfText(page, highlightBox) {
     let linesOfText = [];
 
     for(let idx = 0; idx < textElements.length; ++idx) {
-
-        var elementRegion = toElementRegion(textElement);
-        var elementBox = regionToBox(elementRegion);
 
         let textElement = textElements[idx];
 
