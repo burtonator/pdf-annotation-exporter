@@ -1,11 +1,12 @@
+
+- fix the image fuzziness in output images.
+    - create a side by side comparison
+
 - annotation-note.svg not loading because the images from the node packages
   are not in the path. Not sure the best solution here... specify 'base' or
   something
 
-- test-okular isn't pulling out the lines of text... They're not really 'lines'
-  though I think.  Include them in both forms though.
-
-- do my OWN highlighting, don't let the pdf.js do it for me.  This way I can
+ do my OWN highlighting, don't let the pdf.js do it for me.  This way I can
   remove the issues with highlight color overlap when having two opacity regions
   on top of one another.  I think I just have to call the annotation extraction
   myself to get the regions and then do the highlight as a layered element I
@@ -13,8 +14,6 @@
 
 
 - expand the highlight region into the elements that covers a smaller percentage of
-
-- fix the image fuzziness in output images.
 
 - set it up to use docker
 

@@ -174,25 +174,26 @@ function parsePopupAnnotation(popupElement) {
 
 function getHighlightImage(page, highlightBox) {
 
-    var canvas = getPageCanvas(page);
+    let canvas = getPageCanvas(page);
 
-    var tmpCanvas = document.createElement("canvas");
+    let tmpCanvas = document.createElement("canvas");
 
-    var destCtx = tmpCanvas.getContext('2d');
+    let tmpCtx = tmpCanvas.getContext('2d');
 
-    var highlightRegion = boxToRegion(highlightBox);
+    let highlightRegion = boxToRegion(highlightBox);
 
     tmpCanvas.width  = highlightRegion.width;
     tmpCanvas.height = highlightRegion.height;
 
     // //call its drawImage() function passing it the source canvas directly
-    destCtx.drawImage(canvas,
-                      highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
-                      0, 0, highlightRegion.width, highlightRegion.height );
+    tmpCtx.drawImage(canvas,
+                     highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
+                     0, 0, highlightRegion.width, highlightRegion.height );
 
-    // toDataURL returns in 96DPI but we should return it in a higher
-    // resolution I think however I guess a picture of text will just never
-    // look appropriate
+    // TODO: toDataURL returns in 96DPI but we should return it in a higher
+    // resolution I think however I guess a picture of text will just never look
+    // appropriate.  This 96DPI comment makes no sense because they're jsut
+    // pixels... There should be no hard width
 
     return {
         src: tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY),
