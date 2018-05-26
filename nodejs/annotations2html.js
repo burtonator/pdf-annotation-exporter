@@ -37,27 +37,31 @@ fs.readFile(path, 'utf8', function (err,data) {
 
     obj.pages.forEach(function(page) {
 
-        page.annotations.forEach(function(annotation) {
+        if (page.annotations.length > 0) {
 
-            console.log("<div class='annotation'>")
-            console.log("<div class=''>type: %s</div>", annotation.type);
+            page.annotations.forEach(function(annotation) {
 
-            if (annotation.image && annotation.image.src !== "") {
-                console.log(`<img src="%s" width="%s" height="%s">`, annotation.image.src, annotation.image.width, annotation.image.height);
-            }
+                console.log("<div class='annotation'>")
+                console.log("<div class=''>type: %s</div>", annotation.type);
 
-            console.log(`<br><b>lines of text:</b><br>`);
+                if (annotation.image && annotation.image.src !== "") {
+                    console.log(`<img src="%s" width="%s" height="%s">`, annotation.image.src, annotation.image.width, annotation.image.height);
+                }
 
-            console.log(`<blockquote>%s</blockquote>`, annotation.linesOfText.join("\n<br>"));
+                console.log(`<br><b>lines of text:</b><br>`);
 
-            console.log(`<br><b>comment:</b><br>`);
-            console.log("<blockquote>%s</blockquote>", annotation.comment.text);
+                console.log(`<blockquote>%s</blockquote>`, annotation.linesOfText.join("\n<br>"));
 
-            console.log("</div>")
+                console.log(`<br><b>comment:</b><br>`);
+                console.log("<blockquote>%s</blockquote>", annotation.comment.text);
 
-        } );
+                console.log("</div>")
 
-        console.log("<hr>");
+            } );
+
+            console.log("<hr>");
+
+        }
 
     });
 

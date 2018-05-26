@@ -17,11 +17,26 @@ as HTML or SVG that can be used natively in other tools.
 
 - Finding the box coordinates around the highlight.
 
-- Extracting the text... 
+- Extracting the text...
+
+- Use a standalone PDF.js that I call directly.
+
+- Input and output to files from the command line.
 
 # What remains:
 
-- Use a standalone PDF.js that I call directly.
+- package it in a docker container on Linux as the dependencies are kind of harsh
+
+- clean up the npm dependencies
+
+- fix some alignment issues on various highlights.
+
+- fix some last minute FIXMEs in the code.
+
+- generated screenshots of highlights don't look as crisp as they do on screen.
+  Numerous people have complained that the resolution of these screenshots
+  is fixed at 96 DPI but I need to see how this manifests itself as I don't
+  understand how that's impacting the output
 
 ## Text extracted
 

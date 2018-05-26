@@ -23,6 +23,10 @@
 //
 //
 
+// chrome supports the following image types.  image/png , image/jpeg, and image/webp
+
+const IMAGE_TYPE = 'image/jpeg';
+const IMAGE_QUALITY = 1.0;
 
 /**
  * Get the annotations from a specific page.
@@ -123,7 +127,7 @@ function isSkippable(page, highlightRegionWithScale) {
 // we only have to search within the offsets and dimensions that we're interested
 // in.
 function getHighlightLinesOfText(page, highlightBox) {
-    
+
     var textElements = page.querySelectorAll(".textLayer div")
 
     // console.log("Working with textAnnotationBox: ", textAnnotationBox)
@@ -157,11 +161,11 @@ function parsePopupAnnotation(popupElement) {
 
     return {
 
-        // TODO: might want to filter these for 
+        // TODO: might want to filter these for
         author: Optional.of(dataElement.querySelector("h1")).map(function(element) {
             return element.textContent;
         }).getOrElse(null),
-        
+
         text: Optional.of(dataElement.querySelector("p")).map(function(element) {
             return element.textContent;
         }).getOrElse(null)
@@ -190,10 +194,10 @@ function getHighlightImage(page, highlightBox) {
 
     // toDataURL returns in 96DPI but we should return it in a higher
     // resolution I think however I guess a picture of text will just never
-    // look appropriate 
+    // look appropriate
 
     return {
-        src: tmpCanvas.toDataURL('image/webp', 1.0),
+        src: tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY),
         width: highlightRegion.width,
         height: highlightRegion.height
     };
@@ -210,7 +214,7 @@ function getPageCanvas(page) {
 
 function getImage(page) {
     var canvas = getPageCanvas(page);
-    return canvas.toDataURL('image/webp', 1.0);
+    return canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
 }
 
 /**
@@ -425,7 +429,7 @@ function doExtraction(extractionOptions) {
     }
 
     return result;
-    
+
 }
 
 
@@ -437,7 +441,7 @@ function doExtraction(extractionOptions) {
 //
 // we don't properly limit the range of teh text BEFORE our highlight.  This was
 // not actually WHAT we highlighted.  I'm going to have to figure out how to do
-// that..  it might not be proossible. ALSO the last div isn't shown.   
+// that..  it might not be proossible. ALSO the last div isn't shown.
 //
 //           "linesOfText": [
 //             "ous transactions. We show that this is a sensible tradeoff,",
