@@ -11,7 +11,6 @@ let options = {executablePath: "/usr/bin/chromium-browser",
 
 // TODO: I don't like this command line option handling.
 opt = getopt.create([
-                        ['I' , 'input=ARG'    , 'Input path or URL'],
                         ['v' , 'verbose'      , 'Enable verbose output of progress'],
                         ['h' , 'help'         , 'display this help']
                     ])
@@ -33,7 +32,7 @@ function trace(msg, ...args) {
 
 (async() => {
 
-    let pdfURL = opt.options.input;
+    let pdfURL = opt.argv[0];
 
     // TODO: take an --output path optionally as it might be nice to print
     // progress to stdout as we are extracting pages
@@ -76,8 +75,11 @@ function trace(msg, ...args) {
         trace(msg);
     });
 
+    let scriptPath = process.argv[1];
+    let scriptDir = path.dirname(scriptPath);
+
     // for some reason absolute file URLs are required here.
-    let indexPath = path.resolve("webapp/index.html");
+    let indexPath = path.resolve(`${scriptDir}/../webapp/index.html`);
     let indexURL = fileUrl(indexPath);
 
     await page.goto(indexURL, {waitUntil: 'load'});
