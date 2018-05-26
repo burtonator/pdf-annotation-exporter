@@ -90,20 +90,28 @@ function createExtractPromise(src, options) {
                 console.log("Page has been rendered..");
 
                 let extractionOptions = createExtractionOptions();
-                let pageAnnotations = doExtraction(extractionOptions);
+                doExtraction(extractionOptions)
+                    .then(function (pageAnnotations) {
 
-                state.pageAnnotations.pages.push(...pageAnnotations.pages);
+                        console.log("FIXME!!!");
 
-                console.log("Found page annotations: ", pageAnnotations);
+                        state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
-                if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
-                    ++pdfSinglePageViewer.currentPageNumber;
-                } else {
+                        console.log("Found page annotations: ", pageAnnotations);
 
-                    // we're done with our extraction.
-                    resolve(state.pageAnnotations);
+                        if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+                            ++pdfSinglePageViewer.currentPageNumber;
+                        } else {
 
-                }
+                            // we're done with our extraction.
+                            resolve(state.pageAnnotations);
+
+                        }
+
+                    }).catch(function(err) {
+                    console.err("Caught err: ", err);
+                    throw err;
+                });
 
             });
 

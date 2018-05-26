@@ -396,25 +396,27 @@ function getAnnotationElements(page, type) {
 
 }
 
-function doExtraction(extractionOptions) {
+async function doExtraction(extractionOptions) {
 
     result = {
         pages: []
     };
 
-    var pages = document.querySelectorAll(".page");
+    let pages = document.querySelectorAll(".page");
 
-    for(var idx = 0; idx < pages.length; ++idx) {
-        var page = pages[idx];
+    for(let idx = 0; idx < pages.length; ++idx) {
+        let page = pages[idx];
 
-        var canvas = getPageCanvas(page);
+        let canvas = getPageCanvas(page);
         if (! canvas)
             continue;
 
-        var pageExtract = extractPage(page, extractionOptions);
+        let pageExtract = extractPage(page, extractionOptions);
         result.pages.push(pageExtract);
 
     }
+
+    console.log("FIXME2: just about to return")
 
     return result;
 

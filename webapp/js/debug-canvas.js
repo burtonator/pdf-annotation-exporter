@@ -224,3 +224,12 @@ function drawOnMainCanvas() {
 }
 
 createClonedCanvas();
+
+
+async function testAsync() {
+    return { key: "hello" };
+}
+
+testAsync().then(function(myval) {
+    console.log("got it: " + myval);
+});
