@@ -185,7 +185,6 @@ function getHighlightImage(page, highlightBox) {
     tmpCanvas.width  = highlightRegion.width;
     tmpCanvas.height = highlightRegion.height;
 
-    // //call its drawImage() function passing it the source canvas directly
     tmpCtx.drawImage(canvas,
                      highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
                      0, 0, highlightRegion.width, highlightRegion.height );
@@ -212,7 +211,7 @@ function getPageCanvas(page) {
 }
 
 function getImage(page) {
-    var canvas = getPageCanvas(page);
+    let canvas = getPageCanvas(page);
     return canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
 }
 
@@ -294,8 +293,6 @@ function toElementRegion(element) {
 // return true if the element is highlighted
 function isElementHighlighted(b0,b1) {
 
-    console.log("FIXME9");
-
     return isOverlapped(b0, b1);
 
 }
@@ -320,12 +317,12 @@ function test() {
 
 function extractPage(page, extractionOptions) {
 
-    var annotations = getAnnotations(page, extractionOptions);
+    let annotations = getAnnotations(page, extractionOptions);
     //var image = getImage(page);
 
     // TODO: no image for now because it's too much data. Make this an option
     // in the future.
-    var image = null;
+    let image = null;
 
     return createPageExtract(annotations, image)
 

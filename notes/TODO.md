@@ -1,17 +1,23 @@
 
+- use something like this when creating my own annotations
+
+https://github.com/Simonwep/selection
+
 - fix the image fuzziness in output images.
-    - create a side by side comparison
+
+    - create a side by side comparison with a second canvas and another img
+    loaded from the second canvas ... and . also an image from teh primary
+    canvas to see if it's just an issue of the data being copied.
 
 - annotation-note.svg not loading because the images from the node packages
   are not in the path. Not sure the best solution here... specify 'base' or
   something
 
- do my OWN highlighting, don't let the pdf.js do it for me.  This way I can
+- do my OWN highlighting, don't let the pdf.js do it for me.  This way I can
   remove the issues with highlight color overlap when having two opacity regions
   on top of one another.  I think I just have to call the annotation extraction
   myself to get the regions and then do the highlight as a layered element I
   temporarily add and then remove.
-
 
 - expand the highlight region into the elements that covers a smaller percentage of
 

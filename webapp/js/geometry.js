@@ -20,12 +20,6 @@ function isOverlapped(child, parent) {
 
     let computedOverlap = computeOverlap(child, parent);
 
-    console.log("FIXME1: " + child.textContent);
-
-    if (computedOverlap.overlap > 0 ) {
-        console.log("FIXME: " + computedOverlap.overlapX.childCoverage);
-    }
-
     return computedOverlap.overlap > 0 && computedOverlap.overlapX.childCoverage > 0.5;
 
 }

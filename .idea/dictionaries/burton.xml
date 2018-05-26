@@ -2,6 +2,7 @@
   <dictionary name="burton">
     <words>
       <w>cmaps</w>
+      <w>loadend</w>
       <w>nodejs</w>
       <w>okular</w>
       <w>pagerendered</w>
