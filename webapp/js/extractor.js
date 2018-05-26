@@ -132,9 +132,7 @@ function isSkippable(page, highlightRegionWithScale) {
 
 function getHighlightLinesOfText(page, highlightBox) {
 
-    var textElements = page.querySelectorAll(".textLayer div")
-
-    // console.log("Working with textAnnotationBox: ", textAnnotationBox)
+    let textElements = page.querySelectorAll(".textLayer div");
 
     let linesOfText = [];
 
@@ -157,7 +155,7 @@ function getHighlightLinesOfText(page, highlightBox) {
 
 function parsePopupAnnotation(popupElement) {
 
-    let dataElement = popupElement.querySelector(".popup")
+    let dataElement = popupElement.querySelector(".popup");
 
     return {
 
