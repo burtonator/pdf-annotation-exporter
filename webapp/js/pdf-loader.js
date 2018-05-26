@@ -58,7 +58,8 @@ function createExtractPromise(src) {
 
         container.addEventListener('pagesinit', function () {
             console.log("Setting current scale view");
-            pdfSinglePageViewer.currentScaleValue = 'page-width';
+            //pdfSinglePageViewer.currentScaleValue = 'page-width';
+            pdfSinglePageViewer.currentScaleValue = 4;
         });
 
         container.addEventListener('pagerendered', function () {
