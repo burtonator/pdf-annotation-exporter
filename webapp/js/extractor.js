@@ -25,8 +25,48 @@
 
 // chrome supports the following image types.  image/png , image/jpeg, and image/webp
 
-const IMAGE_TYPE = 'image/jpeg';
+const IMAGE_TYPE = 'image/png';
 const IMAGE_QUALITY = 1.0;
+
+function _arrayBufferToBase64( buffer ) {
+    let binary = '';
+    let bytes = new Uint8Array( buffer );
+    let len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return window.btoa( binary );
+}
+
+/**
+ * Convert the given canvas to a data URL and return it as a string.  The
+ * internal toDataURL on canvas will resize the image and mess with quality
+ * and this is always high fidelity.
+ *
+ */
+async function toDataURLHD(canvas) {
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/Blob
+
+    return new Promise(function(resolve, reject) {
+
+        canvas.toBlob(function (blob) {
+
+            let reader = new FileReader();
+            reader.addEventListener("loadend", function () {
+
+                let encoded = _arrayBufferToBase64(reader.result);
+
+                resolve("data:image/jpeg;base64," + encoded);
+
+            });
+
+            reader.readAsArrayBuffer(blob);
+
+        }, IMAGE_TYPE, IMAGE_QUALITY);
+    });
+
+}
 
 /**
  * Get the annotations from a specific page.
@@ -415,8 +455,6 @@ async function doExtraction(extractionOptions) {
         result.pages.push(pageExtract);
 
     }
-
-    console.log("FIXME2: just about to return")
 
     return result;
 

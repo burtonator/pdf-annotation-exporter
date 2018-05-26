@@ -24,13 +24,6 @@ function _arrayBufferToBase64( buffer ) {
     return window.btoa( binary );
 }
 
-let value = new Promise(function(resolve,reject) {
-    console.log("resolved");
-    resolve("asdf");
-});
-
-console.log(await value);
-
 /**
  * Convert the given canvas to a data URL and return it as a string.
  */
