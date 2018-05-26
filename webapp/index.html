@@ -33,6 +33,36 @@
             }
         </style>
 
+        <script>
+
+            window.onload = function() {
+
+                if ( ! isHeadlessChrome() ) {
+
+                    console.log("Loading test PDF since we are loading the webapp outside of headless chrome.");
+
+                    // go ahead and load up a debug PDF because we're loading
+                    // the webapp from the browser.
+
+                    let options = {
+                        noExtraction: false,
+                        scale: 'page-width',
+                        maxPages: 1
+                    };
+
+                    createExtractPromise({ url: "test.pdf" }, options ).then(function(result) {
+                        console.log("Test PDF loaded.");
+                        console.log(result);
+                    }, function (err) {
+                        console.error("Failed to load test PDF: ", err);
+                    });
+
+                }
+
+            }
+
+        </script>
+
     </head>
 
     <body>

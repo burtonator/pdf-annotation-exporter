@@ -18,7 +18,13 @@ function isOverlapped(child, parent) {
     // if we get partial text we still allow it but we don't accidentally pull
     // in the previous paragraph.
 
-    var computedOverlap = computeOverlap(child, parent);
+    let computedOverlap = computeOverlap(child, parent);
+
+    console.log("FIXME1: " + child.textContent);
+
+    if (computedOverlap.overlap > 0 ) {
+        console.log("FIXME: " + computedOverlap.overlapX.childCoverage);
+    }
 
     return computedOverlap.overlap > 0 && computedOverlap.overlapX.childCoverage > 0.5;
 
@@ -33,7 +39,7 @@ function isOverlapped(child, parent) {
  */
 function computeOverlap(child, parent) {
 
-    var result = {};
+    let result = {};
 
     result.overlapX = computeOverlapWithinDimension(child, parent, function(box) { return box.x;} );
     result.overlapY = computeOverlapWithinDimension(child, parent, function(box) { return box.y;} );
@@ -50,7 +56,7 @@ function computeOverlap(child, parent) {
  */
 function computeOverlapWithinDimension(child, parent, extractDim) {
 
-    var result = {};
+    let result = {};
 
     // the number of coordinates in the given dimension that are overlapped.
     result.overlap

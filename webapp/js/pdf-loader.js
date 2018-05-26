@@ -1,10 +1,19 @@
+const DEFAULT_SCALE = 4;
+
+const CMAP_URL = '../node_modules/pdfjs-dist/cmaps/';
+const CMAP_PACKED = true;
+
+// state of the extraction as we move forward.
 let state = {
+
+    // the PDF page we loaded
     pdf: null,
 
     // the annotations we've extracted (one set per page).
     pageAnnotations: {
         pages: []
     }
+
 };
 
 /**
@@ -41,9 +50,18 @@ function waitForResultsFromBuffer(src, buffer) {
  * is a type object with numerous parameters.
  * https://github.com/mozilla/pdf.js/blob/master/src/display/api.js#L112
  *
+ * @param options Specify the options for the extraction.
  * @returns {Promise<any>}
  */
-function createExtractPromise(src) {
+function createExtractPromise(src, options) {
+
+    if ( ! options) {
+        options = {
+            noExtraction: false,
+            scale: DEFAULT_SCALE,
+            maxPages: 9999
+        };
+    }
 
     return new Promise(function(resolve, reject) {
 
@@ -59,43 +77,54 @@ function createExtractPromise(src) {
         container.addEventListener('pagesinit', function () {
             console.log("Setting current scale view");
             //pdfSinglePageViewer.currentScaleValue = 'page-width';
-            pdfSinglePageViewer.currentScaleValue = 4;
+            pdfSinglePageViewer.currentScaleValue = options.scale;
         });
 
-        container.addEventListener('pagerendered', function () {
+        if (! options.noExtraction) {
 
-            console.log("Page has been rendered..");
+            // NOTE: we have to wait for textlayerrendered because pagerendered
+            // doesn't give us the text but pagerendered is called before
+            // textlayerrendered anyway so this is acceptable.
+            container.addEventListener('textlayerrendered', function () {
 
-            let extractionOptions = createExtractionOptions();
-            let pageAnnotations = doExtraction(extractionOptions);
+                console.log("Page has been rendered..");
 
-            state.pageAnnotations.pages.push(...pageAnnotations.pages);
+                let extractionOptions = createExtractionOptions();
+                let pageAnnotations = doExtraction(extractionOptions);
 
-            console.log("Found page annotations: ", pageAnnotations);
+                state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
-            if (pdfSinglePageViewer.currentPageNumber < state.pdf.numPages) {
-                ++pdfSinglePageViewer.currentPageNumber;
-            } else {
+                console.log("Found page annotations: ", pageAnnotations);
 
-                // we're done with our extraction.
-                resolve(state.pageAnnotations);
+                if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+                    ++pdfSinglePageViewer.currentPageNumber;
+                } else {
 
-            }
+                    // we're done with our extraction.
+                    resolve(state.pageAnnotations);
 
-        });
+                }
+
+            });
+
+        }
 
         console.log("Beginning extraction...")
 
-        // Documentation on how to load PDFs into the single page
-        // viewer is located here:
-        //
-        // https://mozilla.github.io/pdf.js/examples/
-
-        // ok.. test-large WORKS but it might be TOO fast...
-
-        // FIXME: enable cmaps support too.  the singlepage viewer has an example.
+        if ( src instanceof Object) {
+            // enable cmaps support too.
+            src.cMapUrl = CMAP_URL;
+            src.cMapPacked = CMAP_PACKED;
+        } else {
+            console.warn("Not using CMAPS");
+        }
 
         pdfjsLib.getDocument(src).then(function(pdf) {
+
+            // Documentation on how to load PDFs into the single page
+            // viewer is located here:
+            //
+            // https://mozilla.github.io/pdf.js/examples/
 
             state.pdf = pdf;
 
@@ -113,6 +142,7 @@ function createExtractPromise(src) {
             console.error("Unable to load PDF: ", reason);
             reject(reason);
         });
+
     });
 
 }

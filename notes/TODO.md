@@ -1,3 +1,7 @@
+- annotation-note.svg not loading because the images from the node packages
+  are not in the path. Not sure the best solution here... specify 'base' or
+  something
+
 - test-okular isn't pulling out the lines of text... They're not really 'lines'
   though I think.  Include them in both forms though.
 

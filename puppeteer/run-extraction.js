@@ -25,8 +25,8 @@ function trace(msg, ...args) {
     // TODO: we should be using some sort of log framework for this so that
     // we can print to a better log stream.
     if (isVerbose()) {
-        // TODO: console.log should go to stderr and probably not be enabled by default..
-        console.log(msg, args);
+
+        console.error(msg, args);
     }
 }
 
@@ -65,14 +65,23 @@ function trace(msg, ...args) {
     const browser = await puppeteer.launch(options);
 
     trace(await browser.version());
+    trace(await browser.userAgent());
 
     trace("Loading extraction webapp");
 
     const page = await browser.newPage();
 
     page.on('console', msg => {
+
         // listen to the log messages in chromium headless.
-        trace(msg);
+        // TODO: this output from chrome isn't the exact same console.log output
+        // and we should reformat it so that it's identical.
+        // _text and _args should be used here... but we're getting back JSHandle messages,
+        // which are weird. TODO: the args should be handled WITHIN the webapp
+        // and if we're in chrome headless, they should convert to strings, but
+        // if  I'm using the webapp interactively, we should use the objects.
+
+        trace(msg._text, msg._args);
     });
 
     let scriptPath = process.argv[1];

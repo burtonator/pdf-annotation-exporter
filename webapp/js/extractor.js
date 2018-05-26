@@ -35,50 +35,52 @@ function getAnnotations(page, extractionOptions) {
 
     // textAnnotation and highlightAnnotation
 
-    var highlights = page.querySelectorAll(".annotationLayer .highlightAnnotation")
+    let highlights = page.querySelectorAll(".annotationLayer .highlightAnnotation")
     console.log(highlights);
 
-    var result = [];
+    let result = [];
 
-    var highlightAnnotations = getAnnotationElements(page, "highlight");
-    var squareAnnotations = getAnnotationElements(page, "square");
-    var textAnnotations = getAnnotationElements(page, "text");
+    let highlightAnnotations = getAnnotationElements(page, "highlight");
+    let squareAnnotations = getAnnotationElements(page, "square");
+    let textAnnotations = getAnnotationElements(page, "text");
 
     console.log("Found text annotations: ", textAnnotations);
 
     // TODO: we can probably get all of these in one pass.
-    var annotations
+    let annotations
         = highlightAnnotations
         .concat(squareAnnotations)
         .concat(textAnnotations);
 
-    for(var idx = 0; idx < annotations.length; ++idx) {
-        var current = annotations[idx];
+    for(let idx = 0; idx < annotations.length; ++idx) {
+        let current = annotations[idx];
 
-        var highlightElement = current.annotation;
+        let highlightElement = current.annotation;
 
         // console.log("highlightElement: ", highlightElement)
 
-        var highlightRegion = toElementRegion(highlightElement);
-        var highlightBox = regionToBox(highlightRegion);
+        let highlightRegion = toElementRegion(highlightElement);
+        let highlightBox = regionToBox(highlightRegion);
 
-        var highlightRegionWithScale = getScaledElementRegion(highlightElement);
-        var highlightBoxWithScale = regionToBox(highlightRegionWithScale);
+        let highlightRegionWithScale = getScaledElementRegion(highlightElement);
+        let highlightBoxWithScale = regionToBox(highlightRegionWithScale);
 
         if(isSkippable(page, highlightRegionWithScale)) {
             continue;
         }
 
-        var comment = {};
+        let comment = {};
 
         if (current.popup) {
             comment = parsePopupAnnotation(current.popup);
         }
 
-        var image = null;
-        var linesOfText = [];
+        let image = null;
+        let linesOfText = [];
 
         if (current.type !== 'text') {
+
+            console.log("FIXME7");
 
             linesOfText = getHighlightLinesOfText(page, highlightBox, highlightBoxWithScale, comment, extractionOptions);
 
@@ -107,7 +109,6 @@ function getAnnotations(page, extractionOptions) {
 
 /**
  *  Return true if the given annotation is skippable
- *
  */
 function isSkippable(page, highlightRegionWithScale) {
 
@@ -119,35 +120,37 @@ function isSkippable(page, highlightRegionWithScale) {
 
     let coverage = highlightArea / canvasArea;
 
-    // most annotations would never take up this much space so it must be a page
-    // annotation
+    // most annotations would never take up this much space so it must be an
+    // annotation over an entire page. I was using these as 'page marks' to track
+    // my reading and I need a way to remove them. For normal users these should
+    // never come up but I need a way to mark them in the future.
     return coverage > 0.9 || (highlightRegionWithScale.left === 0 && highlightRegionWithScale.top === 0);
 
 }
 
 // TODO: this could be more efficient by using an index of the offsets so that
-// we only have to search within the offsets and dimensions that we're interested
-// in.
+// we only have to search within the offsets and dimensions that we're
+// interested in.
+
 function getHighlightLinesOfText(page, highlightBox) {
 
     var textElements = page.querySelectorAll(".textLayer div")
 
     // console.log("Working with textAnnotationBox: ", textAnnotationBox)
 
-    var linesOfText = [];
+    let linesOfText = [];
 
-    for(var idx = 0; idx < textElements.length; ++idx) {
-        var textElement = textElements[idx];
+    for(let idx = 0; idx < textElements.length; ++idx) {
 
         var elementRegion = toElementRegion(textElement);
         var elementBox = regionToBox(elementRegion);
 
-        // console.log("textElement: ", textElement);
-        // console.log("elementRegion: ", elementRegion);
-        // console.log("elementBox: ", elementBox);
+        let textElement = textElements[idx];
+
+        let elementRegion = toElementRegion(textElement);
+        let elementBox = regionToBox(elementRegion);
 
         if (isElementHighlighted(elementBox, highlightBox)) {
-            // console.log("YES!: " + textElement.outerText);
             linesOfText.push(textElement.outerText);
         }
 
@@ -159,7 +162,7 @@ function getHighlightLinesOfText(page, highlightBox) {
 
 function parsePopupAnnotation(popupElement) {
 
-    var dataElement = popupElement.querySelector(".popup")
+    let dataElement = popupElement.querySelector(".popup")
 
     return {
 
@@ -248,12 +251,12 @@ function createPoint(x,y) {
 function getScaledElementRegion(element) {
 
     // the width and height here are what we want and don't need to be scaled.
-    var boundingClientRect = element.getBoundingClientRect();
+    let boundingClientRect = element.getBoundingClientRect();
 
-    var scales = parseTransformScale(element.style.transform);
+    let scales = parseTransformScale(element.style.transform);
 
-    var scaleX = scales[0];
-    var scaleY = scales[1];
+    let scaleX = scales[0];
+    let scaleY = scales[1];
 
     return {left: element.offsetLeft * scaleX,
             top: element.offsetTop * scaleY,
@@ -272,7 +275,7 @@ function parseTransformScale(transform) {
     transform = transform.replace("matrix(", "");
     transform = transform.replace(")", "");
 
-    var splitData = transform.split(", ")
+    let splitData = transform.split(", ")
 
     return [parseFloat(splitData[0]), parseFloat(splitData[3])];
 
@@ -288,7 +291,7 @@ function toElementRegionUsingOffset(element) {
 // Take an element and convert it to a box by using its offsets.
 function toElementRegion(element) {
 
-    var clientRect = element.getBoundingClientRect()
+    let clientRect = element.getBoundingClientRect()
 
     // TODO: I could return this just as a box.
     return createRegion(clientRect.left, clientRect.top, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
@@ -296,6 +299,8 @@ function toElementRegion(element) {
 
 // return true if the element is highlighted
 function isElementHighlighted(b0,b1) {
+
+    console.log("FIXME9");
 
     return isOverlapped(b0, b1);
 
@@ -308,12 +313,12 @@ function assertTrue(value) {
 
 function test() {
 
-    var within = createBox(createPoint(0,0),createPoint(100,100));
-    var box0 = createBox(createPoint(0,0),createPoint(100,100));
+    let within = createBox(createPoint(0,0),createPoint(100,100));
+    let box0 = createBox(createPoint(0,0),createPoint(100,100));
 
     assertTrue(isWithinBox(box0, within));
 
-    var box1 = createBox(createPoint(10,10),createPoint(20,20));
+    let box1 = createBox(createPoint(10,10),createPoint(20,20));
     assertTrue(isWithinBox(box1, within));
 
 
@@ -424,7 +429,9 @@ function doExtraction(extractionOptions) {
 
 }
 
-
+function isHeadlessChrome() {
+    return navigator.userAgent.indexOf("HeadlessChrome") !== -1;
+}
 
 // FIXME: I now need to tell the rendered to go through and render all the pages
 // and use promises as it doesn't actually do this by itself.
