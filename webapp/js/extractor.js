@@ -355,7 +355,7 @@ function test() {
 
 }
 
-function extractPage(page, extractionOptions) {
+async function extractPage(page, extractionOptions) {
 
     let annotations = getAnnotations(page, extractionOptions);
     //var image = getImage(page);
@@ -451,8 +451,10 @@ async function doExtraction(extractionOptions) {
         if (! canvas)
             continue;
 
-        let pageExtract = extractPage(page, extractionOptions);
-        result.pages.push(pageExtract);
+        extractPage(page, extractionOptions)
+            .then(function (pageExtract) {
+                result.pages.push(pageExtract);
+            });
 
     }
 
