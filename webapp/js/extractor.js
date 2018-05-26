@@ -88,12 +88,14 @@ function getAnnotations(page, extractionOptions) {
 
         }
 
-        var highlight = createHighlight(highlightBox,
-                                        linesOfText,
-                                        image,
-                                        highlightBoxWithScale,
-                                        comment,
-                                        current.type);
+        let highlight = {
+            box: highlightBox,
+            linesOfText,
+            image,
+            boxWithScale: highlightBoxWithScale,
+            comment,
+            type: current.type
+        };
 
         result.push(highlight);
 
@@ -109,13 +111,13 @@ function getAnnotations(page, extractionOptions) {
  */
 function isSkippable(page, highlightRegionWithScale) {
 
-    var canvas = getPageCanvas(page);
+    let canvas = getPageCanvas(page);
 
-    var canvasArea = canvas.offsetWidth * canvas.offsetHeight;
+    let canvasArea = canvas.offsetWidth * canvas.offsetHeight;
 
-    var highlightArea = highlightRegionWithScale.width * highlightRegionWithScale.height;
+    let highlightArea = highlightRegionWithScale.width * highlightRegionWithScale.height;
 
-    var coverage = highlightArea / canvasArea;
+    let coverage = highlightArea / canvasArea;
 
     // most annotations would never take up this much space so it must be a page
     // annotation
@@ -215,16 +217,6 @@ function getPageCanvas(page) {
 function getImage(page) {
     var canvas = getPageCanvas(page);
     return canvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
-}
-
-/**
- * Create an object with the bounding box of the text plus the text as an actual
- * array of lines.
- */
-function createHighlight(box, linesOfText, image, highlightBoxWithScale, comment, type) {
-
-    return {box: box, linesOfText: linesOfText, image: image, boxWithScale: highlightBoxWithScale, comment: comment, type: type};
-
 }
 
 // A region is like a box but based on left, top, width, height.

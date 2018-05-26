@@ -1,9 +1,29 @@
+- test-okular isn't pulling out the lines of text... They're not really 'lines'
+  though I think.  Include them in both forms though.
 
-- get my own version of PDF.js working
-- get pupeteer to load the app and take a PDF from the command line
+- do my OWN highlighting, don't let the pdf.js do it for me.  This way I can
+  remove the issues with highlight color overlap when having two opacity regions
+  on top of one another.  I think I just have to call the annotation extraction
+  myself to get the regions and then do the highlight as a layered element I
+  temporarily add and then remove.
+
+
+- expand the highlight region into the elements that covers a smaller percentage of
+
+- fix the image fuzziness in output images.
+
 - set it up to use docker
 
-# copy the full page and then clip it
+# Strategies around extracting the page as HTML that can be exported elsewhere
+
+## Write some sort of 'canvas recorder'
+
+Track which commands executed by chrome impacted the canvas at a specific region.
+
+Then replay those commands in javascript via an embedded data URL encoding
+HTML.
+
+## copy the full page and then clip it
 
 https://www.kirupa.com/html5/clipping_content_using_css.htm
 
