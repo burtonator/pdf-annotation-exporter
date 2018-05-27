@@ -43,22 +43,23 @@ function waitForResultsFromBuffer(src, buffer) {
 
 }
 
-function fixCanvas() {
+/**
+ * Force image smoothing on the underlying canvas.
+ */
+function fixCanvasImageSmoothing() {
+
+    // TODO: I didn't test if this actually yields a higher quality image.
+    //
 
     let canvas = document.querySelector("canvas");
 
     if (! canvas) {
-        console.log("FIXME: no canvas");
         return;
     }
 
     let canvasCtx = canvas.getContext('2d');
 
-    console.log("FIXME: canvas context has image smoothing: " +  canvasCtx.imageSmoothingEnabled);
-
     canvasCtx.imageSmoothingEnabled = false;
-
-    console.log("FIXME: image smoothing disabled");
 
 }
 
@@ -116,35 +117,35 @@ async function createExtractPromise(src, options) {
             if(options.scale) {}
             pdfSinglePageViewer.currentScale = options.scale;
 
-            fixCanvas();
+            fixCanvasImageSmoothing();
         });
 
         container.addEventListener('pagechanging', function () {
             console.log("Detected page changing.")
-            fixCanvas();
+            fixCanvasImageSmoothing();
         });
 
         container.addEventListener('pagechange', function () {
             console.log("Detected page change.")
-            fixCanvas();
+            fixCanvasImageSmoothing();
 
         });
 
         container.addEventListener('pagerendered', function () {
             console.log("Detected pagerendered.")
-            fixCanvas();
+            fixCanvasImageSmoothing();
 
         });
 
         container.addEventListener('pageloaded', function () {
             console.log("Detected pageloaded.")
-            fixCanvas();
+            fixCanvasImageSmoothing();
 
         });
 
         container.addEventListener('DOMContentLoaded', function () {
             console.log("Detected DOMContentLoaded.");
-            fixCanvas();
+            fixCanvasImageSmoothing();
         });
 
         // FIXME: this isn't the event I want as it doesn't actually work...
@@ -153,7 +154,7 @@ async function createExtractPromise(src, options) {
         container.addEventListener('updateviewarea', function () {
             console.log("Detected updateviewarea.")
 
-            fixCanvas();
+            fixCanvasImageSmoothing();
 
             let container2 = document.getElementById('viewerContainer');
 
