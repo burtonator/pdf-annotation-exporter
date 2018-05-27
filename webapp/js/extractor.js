@@ -46,24 +46,53 @@ function _arrayBufferToBase64( buffer ) {
  */
 async function toDataURLHD(canvas) {
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/Blob
+    // FIXME: callign this method AT ALL causes us to fuck up.. it deadlocks
+    // us and we cant chagne to the next page.  not sure why.
 
+    // https://developer.mozilla.org/en-US/docs/Web/API/Blob
+    //
     return new Promise(function(resolve, reject) {
 
-        canvas.toBlob(function (blob) {
+        //console.log("FIXME: BEFORE toBlob");
 
-            let reader = new FileReader();
-            reader.addEventListener("loadend", function () {
+         canvas.toBlob(function (blob) {
 
-                let encoded = _arrayBufferToBase64(reader.result);
+            //console.log("FIXME: AFTER toBlob");
 
-                resolve("data:image/jpeg;base64," + encoded);
+            // let reader = new FileReader();
+            //
+            // reader.addEventListener("onloadstart", function (err) {
+            //     console.log("FIXME3")
+            //     reject(err);
+            // });
+            //
+            // reader.addEventListener("loadend", function () {
+            //
+            //     console.log("FIXM4")
+            //     let encoded = _arrayBufferToBase64(reader.result);
+            //
+            //     resolve("data:image/jpeg;base64," + encoded);
+            //
+            // });
+            //
+            // reader.addEventListener("onerror", function (err) {
+            //     console.log("FIXME5")
+            //     reject(err);
+            // });
+            //
+            // reader.addEventListener("onabort", function (err) {
+            //     console.log("FIXME6")
+            //     reject(err);
+            // });
+            //
+            // reader.readAsArrayBuffer(blob);
 
-            });
+            resolve("FIXME:fake-url");
 
-            reader.readAsArrayBuffer(blob);
+         }, IMAGE_TYPE, IMAGE_QUALITY);
 
-        }, IMAGE_TYPE, IMAGE_QUALITY);
+        //resolve("FIXME:fake-url");
+
     });
 
 }
@@ -96,8 +125,6 @@ async function getAnnotations(page, extractionOptions) {
         let current = annotations[idx];
 
         let highlightElement = current.annotation;
-
-        // console.log("highlightElement: ", highlightElement)
 
         let highlightRegion = toElementRegion(highlightElement);
         let highlightBox = regionToBox(highlightRegion);
@@ -225,21 +252,28 @@ async function getHighlightImage(page, highlightBox) {
     tmpCanvas.width  = highlightRegion.width;
     tmpCanvas.height = highlightRegion.height;
 
+    const originX = 0;
+    const originY = 0;
+
     tmpCtx.drawImage(canvas,
                      highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
-                     0, 0, highlightRegion.width, highlightRegion.height );
+                     originX, originY, highlightRegion.width, highlightRegion.height );
 
     // TODO: toDataURL returns in 96DPI but we should return it in a higher
     // resolution I think however I guess a picture of text will just never look
     // appropriate.  This 96DPI comment makes no sense because they're jsut
     // pixels... There should be no hard width
 
-    return {
-        //src: await toDataURLHD(tmpCanvas),
-        src: tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY),
-        width: highlightRegion.width,
-        height: highlightRegion.height
-    };
+    let dataURL = await toDataURLHD(tmpCanvas);
+    //let dataURL = tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
+
+    return {};
+
+    // return {
+    //     src: dataURL,
+    //     width: highlightRegion.width,
+    //     height: highlightRegion.height
+    // };
 
 }
 

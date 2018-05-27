@@ -43,7 +43,6 @@ function waitForResultsFromBuffer(src, buffer) {
 
 }
 
-
 /**
  *
  * @param src The source of the document.  See getDocument in pdf.js as this
@@ -72,6 +71,12 @@ async function createExtractPromise(src, options) {
         let pdfSinglePageViewer = new pdfjsViewer.PDFSinglePageViewer(
             {
                 container: container,
+
+                // TODO: bundle the images properly into the webapp dir.
+                // imageResourcesPath: "images/"
+
+                imageResourcesPath: "../node_modules/pdfjs-dist/web/images/"
+
             });
 
         container.addEventListener('pagesinit', function () {
@@ -80,31 +85,73 @@ async function createExtractPromise(src, options) {
             pdfSinglePageViewer.currentScaleValue = options.scale;
         });
 
+        container.addEventListener('pagechanging', function () {
+            console.log("Detected page changing.")
+        });
+
+        container.addEventListener('pagechange', function () {
+            console.log("Detected page change.")
+        });
+
+        container.addEventListener('pagerendered', function () {
+            console.log("Detected pagerendered.")
+        });
+
+        container.addEventListener('pageloaded', function () {
+            console.log("Detected pageloaded.")
+        });
+
+        container.addEventListener('updateviewarea', function () {
+            console.log("Detected updateviewarea.")
+            console.log("Changing to next page via timeout");
+            ++pdfSinglePageViewer.currentPageNumber;
+        });
+
         if (! options.noExtraction) {
 
             // NOTE: we have to wait for textlayerrendered because pagerendered
             // doesn't give us the text but pagerendered is called before
             // textlayerrendered anyway so this is acceptable.
-            container.addEventListener('textlayerrendered', async function () {
+            container.addEventListener('textlayerrendered', function () {
 
-                console.log("Page has been rendered..");
+                console.log(`Page ${pdfSinglePageViewer.currentPageNumber} has been rendered..`);
 
                 let extractionOptions = createExtractionOptions();
 
-                let pageAnnotations = await doExtraction(extractionOptions);
+                // FIXME: ok.. everything else was sync here.. as soon as
+                // I added ONE async call this broke...  so the the way I'm changing
+                // pages isn't threadsafe...
 
-                state.pageAnnotations.pages.push(...pageAnnotations.pages);
+                // FIXME: ideally this would be await...
+                doExtraction(extractionOptions).then(function (pageAnnotations) {
 
-                console.log("Found page annotations: ", pageAnnotations);
+                    state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
-                if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
-                    ++pdfSinglePageViewer.currentPageNumber;
-                } else {
+                    console.log("Found page annotations: ", pageAnnotations);
 
-                    // we're done with our extraction.
-                    resolve(state.pageAnnotations);
+                    if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+                        window.setTimeout(function () {
+                            // FIXME: I THOUGHT I had to do it here to bypass this
+                            // stall issue but something about fucking with that canvas
+                            // causes this issue...
+                            // console.log("Changing to next page via timeout");
+                            // ++pdfSinglePageViewer.currentPageNumber;
+                        }, 1);
 
-                }
+                        //pdfSinglePageViewer.scrollPageIntoView({pageNumber: pdfSinglePageViewer.currentPageNumber + 1});
+
+                    } else {
+
+                        console.log("Loaded final page (done).");
+
+                        // we're done with our extraction.
+                        resolve(state.pageAnnotations);
+
+                    }
+
+                    console.log("textlayerrendered: done.")
+
+                })
 
             });
 
@@ -143,6 +190,10 @@ async function createExtractPromise(src, options) {
             console.error("Unable to load PDF: ", reason);
             reject(reason);
         });
+
+        window.pdfSinglePageViewer = pdfSinglePageViewer;
+
+        //return {container, pdfSinglePageViewer};
 
     });
 

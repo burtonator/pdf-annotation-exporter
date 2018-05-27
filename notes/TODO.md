@@ -1,7 +1,8 @@
 
-- use something like this when creating my own annotations
 
-https://github.com/Simonwep/selection
+- - change imageResourcesPath to something reasonable... 
+
+
 
 - fix the image fuzziness in output images.
 
@@ -89,3 +90,8 @@ I might be able to duplicate the DOM, then remove everything else from it,
 keeping JUST the nodes I need, then just calling outerHTML on that resulting,
 pruned document.
 
+
+
+- use something like this when creating my own annotations
+
+https://github.com/Simonwep/selection

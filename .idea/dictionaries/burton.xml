@@ -5,6 +5,10 @@
       <w>loadend</w>
       <w>nodejs</w>
       <w>okular</w>
+      <w>onabort</w>
+      <w>onloadstart</w>
+      <w>pagechange</w>
+      <w>pagechanging</w>
       <w>pagerendered</w>
       <w>pagesinit</w>
       <w>pdfjs</w>

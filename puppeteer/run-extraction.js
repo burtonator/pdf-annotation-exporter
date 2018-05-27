@@ -7,6 +7,7 @@ const process = require('process')
 
 // TODO: this will have to be fixed when running within docker.
 let options = {executablePath: "/usr/bin/chromium-browser",
+               headless: true,
                args: ["--disable-web-security", " --allow-file-access-from-files", "--user-data-dir=/tmp"] };
 
 // TODO: I don't like this command line option handling.

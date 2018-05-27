@@ -37,7 +37,9 @@
 
             window.onload = function() {
 
-                if ( ! isHeadlessChrome() ) {
+                const enableDebug = true;
+
+                if ( enableDebug && ! isHeadlessChrome() ) {
 
                     console.log("Loading test PDF since we are loading the webapp outside of headless chrome.");
 
@@ -47,7 +49,7 @@
                     let options = {
                         noExtraction: false,
                         scale: 'page-width',
-                        maxPages: 1
+                        maxPages: 999
                     };
 
                     createExtractPromise({ url: "test-basic.pdf" }, options ).then(function(result) {
