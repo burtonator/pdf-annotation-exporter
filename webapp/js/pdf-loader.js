@@ -48,8 +48,12 @@ function waitForResultsFromBuffer(src, buffer) {
  */
 function fixCanvasImageSmoothing() {
 
-    // TODO: I didn't test if this actually yields a higher quality image.
-    //
+    // NOTE: this doesn't seem to actually change our output in any way.  The
+    // content would change to a different image but it doesn't seem to. It
+    // might be an ordering issue as the canvas could already be written to
+    // but I don't think that's the issue.  To test whether this works we
+    // can just toggle imageSmoothingEnabled and see if the content changes
+    // on disk in our tests.
 
     let canvas = document.querySelector("canvas");
 
@@ -97,13 +101,7 @@ async function createExtractPromise(src, options) {
 
         let pdfSinglePageViewer = new pdfjsViewer.PDFSinglePageViewer(
             {
-                // FIXME scale here... I think?
-
                 container: container,
-
-                // TODO: bundle the images properly into the webapp dir.
-                // imageResourcesPath: "images/"
-
                 imageResourcesPath: "../node_modules/pdfjs-dist/web/images/",
                 enableWebGL: true
 
@@ -148,29 +146,15 @@ async function createExtractPromise(src, options) {
             fixCanvasImageSmoothing();
         });
 
-        // FIXME: this isn't the event I want as it doesn't actually work...
-        // it will fire BEFORE textlayerrendered so I'm just constantly
-        // switching pages.
         container.addEventListener('updateviewarea', function () {
             console.log("Detected updateviewarea.")
-
             fixCanvasImageSmoothing();
-
-            let container2 = document.getElementById('viewerContainer');
-
-            container2.addEventListener('textlayerrendered', function () {
-                console.log("FIXME container2 now works!");
-            } );
 
         });
 
         // FIXME: don't conditially add the eventListener... ALWAYs add the event
         // listener and then do this noExtraction test as a return.
         if (! options.noExtraction) {
-
-            // FIXME: track down the "Warning: Setting up fake worker" message
-            // because I could probably borrow this code to load my own blob
-            // worker.
 
             // NOTE: we have to wait for textlayerrendered because pagerendered
             // doesn't give us the text but pagerendered is called before
@@ -182,10 +166,6 @@ async function createExtractPromise(src, options) {
                 console.log(`Page ${pdfSinglePageViewer.currentPageNumber} has been rendered..`);
 
                 let extractionOptions = createExtractionOptions();
-
-                // FIXME: ok.. everything else was sync here.. as soon as
-                // I added ONE async call this broke...  so the the way I'm changing
-                // pages isn't threadsafe...
 
                 // FIXME: ideally this would be await...
                 doExtraction(extractionOptions).then(function (pageAnnotations) {
@@ -200,26 +180,11 @@ async function createExtractPromise(src, options) {
 
                     if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
 
-                        // FIXME: try this again with
-                        // or some OTHER way to keep the page number in two variables
-                        // so I don't have to worry about a race issue internally with pdf.js
-
-                        console.log("Changing to next page");
-
-                        console.log(`FIXME: pageIdx: ${pageIdx}`)
-                        console.log(`FIXME: currentPageNumber: ${pdfSinglePageViewer.currentPageNumber}`)
                         ++pageIdx;
 
                         console.log(`Changing to page number ${pageIdx}`)
 
-                        //pdfSinglePageViewer.currentPageNumber = pageIdx;
-                        //pdfSinglePageViewer.currentPageNumber = pageIdx;
-
                         pdfSinglePageViewer.currentPageNumber = pageIdx;
-                        // FIXME: I think the problem we're now dealing with is that the page CHANGES
-                        // but that we no longer receive any additional events!
-
-                        console.log(`FIXME: currentPageNumber IS NOW: ${pdfSinglePageViewer.currentPageNumber}`)
 
                     } else {
 

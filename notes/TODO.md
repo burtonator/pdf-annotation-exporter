@@ -1,3 +1,6 @@
+// track down the "Warning: Setting up fake worker" message
+// because I could probably borrow this code to load my own blob
+// worker.
 
 //
 // I'm going to have to use the lettering plugin for this to get the position
@@ -30,6 +33,8 @@
 
          - this is a webGL PDF.. see if I can use this technique to get perfect
            PDF text!!!
+
+         - do a manual comparison of pdf.js at a reasonable zoom level vs this demo.
 
        - https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/imageSmoothingEnabled
 
