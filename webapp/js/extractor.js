@@ -1,27 +1,3 @@
-// script to test exporting PDF text and images...
-
-// page:
-//   number
-//   images=[] // images of configured sizes of the pages
-
-// image
-//
-//   data: data URI of the image
-//
-//
-// highlight
-// rectangle
-// note
-//
-//
-
-// FIXME: pull out the highlighted words but ALSO pull out a screenshot with
-// context as well the lines of text with context.   This way I can read more about
-// what I was interested in at the time.
-//
-// - use vertical screenshot context only.
-//
-//
 
 // chrome supports the following image types.  image/png , image/jpeg, and image/webp
 
@@ -46,52 +22,34 @@ function _arrayBufferToBase64( buffer ) {
  */
 async function toDataURLHD(canvas) {
 
-    // FIXME: callign this method AT ALL causes us to fuck up.. it deadlocks
-    // us and we cant chagne to the next page.  not sure why.
-
     // https://developer.mozilla.org/en-US/docs/Web/API/Blob
     //
     return new Promise(function(resolve, reject) {
 
-        //console.log("FIXME: BEFORE toBlob");
-
          canvas.toBlob(function (blob) {
-
-            //console.log("FIXME: AFTER toBlob");
 
             let reader = new FileReader();
 
             reader.addEventListener("onloadstart", function (err) {
-                console.log("FIXME3")
                 reject(err);
             });
 
             reader.addEventListener("loadend", function () {
-
-                console.log("FIXM4")
                 let encoded = _arrayBufferToBase64(reader.result);
-
                 resolve(`data:${IMAGE_TYPE};base64,` + encoded);
-
             });
 
             reader.addEventListener("onerror", function (err) {
-                console.log("FIXME5")
                 reject(err);
             });
 
             reader.addEventListener("onabort", function (err) {
-                console.log("FIXME6")
                 reject(err);
             });
 
             reader.readAsArrayBuffer(blob);
 
-            // resolve("FIXME:fake-url");
-
          }, IMAGE_TYPE, IMAGE_QUALITY);
-
-        //resolve("FIXME:fake-url");
 
     });
 
@@ -121,8 +79,6 @@ async function getAnnotations(page, extractionOptions) {
         .concat(squareAnnotations)
         .concat(textAnnotations);
 
-    console.log("FIXME: found N raw annotations: " + annotations.length);
-
     for(let idx = 0; idx < annotations.length; ++idx) {
         let current = annotations[idx];
 
@@ -135,11 +91,8 @@ async function getAnnotations(page, extractionOptions) {
         let highlightBoxWithScale = regionToBox(highlightRegionWithScale);
 
         if(isSkippable(page, highlightRegionWithScale)) {
-            console.log("FIXME4 (skippable)");
             continue;
         }
-
-        console.log("FIXME2");
 
         let comment = {};
 
@@ -151,8 +104,6 @@ async function getAnnotations(page, extractionOptions) {
         let linesOfText = [];
 
         if (current.type !== 'text') {
-
-            console.log("FIXME3");
 
             linesOfText = getHighlightLinesOfText(page, highlightBox, highlightBoxWithScale, comment, extractionOptions);
 
@@ -188,8 +139,6 @@ function isSkippable(page, highlightRegionWithScale) {
     let canvasArea = canvas.offsetWidth * canvas.offsetHeight;
     let highlightArea = highlightRegionWithScale.width * highlightRegionWithScale.height;
     let coverage = highlightArea / canvasArea;
-
-    console.log("FIXME5: " + JSON.stringify({canvasArea, highlightArea, coverage}));
 
     // most annotations would never take up this much space so it must be an
     // annotation over an entire page. I was using these as 'page marks' to track
@@ -249,13 +198,21 @@ async function getHighlightImage(page, highlightBox) {
 
     let canvas = getPageCanvas(page);
 
+    //FIXME: it's definitely the resulting image though.  NOT the input ...
+    // so it's either the CANVAS or it's my copying the data.
+
     // FIXME: this returns true but it might be because it is being reset...
     //console.log("FIXME: main canvas has image smoothing enabled: "  + canvas.getContext('2d').imageSmoothingEnabled)
 
+    // FIXME: this is STILL not working.  The serif on the 's' is fucked but
+    // I think we're getting farther. the toDataURLHD isn't the issue here.
+    //
+    // I think for most of the images they're correct.
 
     let tmpCanvas = document.createElement("canvas");
 
     let tempCanvasCtx = tmpCanvas.getContext('2d', {alpha: false});
+    console.log("FIXME: current tempCanvasCtx.imageSmoothingEnabled: " + tempCanvasCtx.imageSmoothingEnabled);
     tempCanvasCtx.imageSmoothingEnabled = false;
 
     console.log("FIXME: temp canvas has image smoothing enabled: "  + tmpCanvas.getContext('2d').imageSmoothingEnabled)
@@ -405,30 +362,15 @@ async function extractPage(page, extractionOptions) {
 
     let annotations = await getAnnotations(page, extractionOptions);
 
-    console.log("FIXME: found N annotations: " + annotations.length);
-
     //var image = getImage(page);
 
     // TODO: no image for now because it's too much data. Make this an option
     // in the future.
     let image = null;
 
-    // FIXME: this should use teh abbreviated syntax.
-    return createPageExtract(annotations, image)
+    return {annotations, image};
 
 }
-
-function createPageExtract(annotations, image) {
-    return {annotations: annotations, image: image};
-}
-
-//
-// textAnnotationRegion = {
-//     left: 70,
-//     top: 226.327,
-//     width: 228.995,
-//     height: 58.755
-// };
 
 /**
  * Get all annotations on the page for the given type and include their popup

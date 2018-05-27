@@ -26,6 +26,12 @@
 
        - https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/imageSmoothingEnabled
 
+
+       - https://stackoverflow.com/questions/40066166/canvas-text-rendering-blurry/40074278
+
+            - basically sub-pixel anti-aliasing doesn't work on canvas.  this
+              demo shows it very well.
+
 - - change imageResourcesPath to something reasonable... 
 
 
