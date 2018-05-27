@@ -264,16 +264,14 @@ async function getHighlightImage(page, highlightBox) {
     // appropriate.  This 96DPI comment makes no sense because they're jsut
     // pixels... There should be no hard width
 
-    //let dataURL = await toDataURLHD(tmpCanvas);
-    let dataURL = tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
+    let dataURL = await toDataURLHD(tmpCanvas);
+    //let dataURL = tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
 
-    return {};
-
-    // return {
-    //     src: dataURL,
-    //     width: highlightRegion.width,
-    //     height: highlightRegion.height
-    // };
+    return {
+        src: dataURL,
+        width: highlightRegion.width,
+        height: highlightRegion.height
+    };
 
 }
 
@@ -394,15 +392,23 @@ async function extractPage(page, extractionOptions) {
 
     let annotations = await getAnnotations(page, extractionOptions);
 
+    console.log("FIXME: found N annotations: " + annotations.length);
+
     //var image = getImage(page);
 
     // TODO: no image for now because it's too much data. Make this an option
     // in the future.
     let image = null;
 
-    return {annotations, image};
+    // FIXME: this should use teh abbreviated syntax.
+    return createPageExtract(annotations, image)
 
 }
+
+function createPageExtract(annotations, image) {
+    return {annotations: annotations, image: image};
+}
+
 //
 // textAnnotationRegion = {
 //     left: 70,

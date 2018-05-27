@@ -101,18 +101,44 @@ async function createExtractPromise(src, options) {
             console.log("Detected pageloaded.")
         });
 
+        container.addEventListener('DOMContentLoaded', function () {
+            console.log("Detected DOMContentLoaded.")
+        });
+
+
+
+        // FIXME: this isn't the event I want as it doesn't actually work...
+        // it will fire BEFORE textlayerrendered so I'm just constantly
+        // switching pages.
         container.addEventListener('updateviewarea', function () {
             console.log("Detected updateviewarea.")
-            console.log("Changing to next page via timeout");
-            ++pdfSinglePageViewer.currentPageNumber;
+
+            if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+
+                //++pdfSinglePageViewer.currentPageNumber;
+
+            } else {
+
+                console.log("Loaded final page (done).");
+
+                // we're done with our extraction.
+                resolve(state.pageAnnotations);
+
+            }
+
         });
 
         if (! options.noExtraction) {
+
+            // FIXME: track down the "Warning: Setting up fake worker" message
+            // because I could probably borrow this code to load my own blob
+            // worker.
 
             // NOTE: we have to wait for textlayerrendered because pagerendered
             // doesn't give us the text but pagerendered is called before
             // textlayerrendered anyway so this is acceptable.
             container.addEventListener('textlayerrendered', function () {
+                console.log("Detected textlayerrendered.")
 
                 console.log(`Page ${pdfSinglePageViewer.currentPageNumber} has been rendered..`);
 
@@ -125,29 +151,9 @@ async function createExtractPromise(src, options) {
                 // FIXME: ideally this would be await...
                 doExtraction(extractionOptions).then(function (pageAnnotations) {
 
-                    state.pageAnnotations.pages.push(...pageAnnotations.pages);
-
                     console.log("Found page annotations: ", pageAnnotations);
 
-                    if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
-                        window.setTimeout(function () {
-                            // FIXME: I THOUGHT I had to do it here to bypass this
-                            // stall issue but something about fucking with that canvas
-                            // causes this issue...
-                            // console.log("Changing to next page via timeout");
-                            // ++pdfSinglePageViewer.currentPageNumber;
-                        }, 1);
-
-                        //pdfSinglePageViewer.scrollPageIntoView({pageNumber: pdfSinglePageViewer.currentPageNumber + 1});
-
-                    } else {
-
-                        console.log("Loaded final page (done).");
-
-                        // we're done with our extraction.
-                        resolve(state.pageAnnotations);
-
-                    }
+                    state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
                     console.log("textlayerrendered: done.")
 
