@@ -1,4 +1,11 @@
 
+//
+// I'm going to have to use the lettering plugin for this to get the position
+// of each letter:
+//
+//   https://daverupert.com/2010/09/lettering-js/
+
+
 - I have to rule out issues with the CANVAS before I fuck with the image URL
   data.  It could be that I'm just doing something wrong with the canvas or I
   have some other issue to deal with..

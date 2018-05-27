@@ -456,31 +456,6 @@ function isHeadlessChrome() {
     return navigator.userAgent.indexOf("HeadlessChrome") !== -1;
 }
 
-// FIXME: I now need to tell the rendered to go through and render all the pages
-// and use promises as it doesn't actually do this by itself.
-
-// FIXME: current problems:
-//
-// we don't properly limit the range of teh text BEFORE our highlight.  This was
-// not actually WHAT we highlighted.  I'm going to have to figure out how to do
-// that..  it might not be proossible. ALSO the last div isn't shown.
-//
-//           "linesOfText": [
-//             "ous transactions. We show that this is a sensible tradeoff,",
-//             "and that resulting system is sufficient for building com-"
-//           ],
-//
-// I'm going to have to use the lettering plugin for this to get the position
-// of each letter:
-//
-//   https://daverupert.com/2010/09/lettering-js/
-
 function createExtractionOptions() {
     return {noPageImages: false, noAnnotationImages: false};
 }
-
-//var result = doExtraction(createExtractionOptions());
-
-//console.log(JSON.stringify(result, null, "  "));
-
-
