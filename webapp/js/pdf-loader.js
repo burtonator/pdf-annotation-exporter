@@ -152,58 +152,56 @@ async function createExtractPromise(src, options) {
 
         });
 
-        // FIXME: don't conditially add the eventListener... ALWAYs add the event
-        // listener and then do this noExtraction test as a return.
-        if (! options.noExtraction) {
+        // NOTE: we have to wait for textlayerrendered because pagerendered
+        // doesn't give us the text but pagerendered is called before
+        // textlayerrendered anyway so this is acceptable.
+        container.addEventListener('textlayerrendered', async function () {
 
-            // NOTE: we have to wait for textlayerrendered because pagerendered
-            // doesn't give us the text but pagerendered is called before
-            // textlayerrendered anyway so this is acceptable.
-            container.addEventListener('textlayerrendered', async function () {
+            if (options.noExtraction) {
+                return;
+            }
 
-                console.log("Received textlayerrendered...")
+           console.log("Received textlayerrendered...");
 
-                console.log(`Page ${pdfSinglePageViewer.currentPageNumber} has been rendered..`);
+            console.log(`Page ${pdfSinglePageViewer.currentPageNumber} has been rendered..`);
 
-                let extractionOptions = createExtractionOptions();
+            let extractionOptions = createExtractionOptions();
 
-                let pageAnnotations = await doExtraction(extractionOptions);
+            let pageAnnotations = await doExtraction(extractionOptions);
 
-                console.log("Received page annotations...");
+            console.log("Received page annotations...");
 
-                console.log("Found page annotations: ", pageAnnotations);
+            console.log("Found page annotations: ", pageAnnotations);
 
-                state.pageAnnotations.pages.push(...pageAnnotations.pages);
+            state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
-                console.log("textlayerrendered: done.")
+            console.log("textlayerrendered: done.");
 
-                if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+            if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
 
-                    ++pageIdx;
+                ++pageIdx;
 
-                    console.log(`Changing to page number ${pageIdx}`)
+                console.log(`Changing to page number ${pageIdx}`);
 
-                    pdfSinglePageViewer.currentPageNumber = pageIdx;
+                pdfSinglePageViewer.currentPageNumber = pageIdx;
 
-                } else {
+            } else {
 
-                    console.log("Loaded final page (done).");
+                console.log("Loaded final page (done).");
 
-                    // we're done with our extraction.
-                    resolve(state.pageAnnotations);
+                // we're done with our extraction.
+                resolve(state.pageAnnotations);
 
-                }
+            }
 
-                console.log("Received page annotations...done");
+            console.log("Received page annotations...done");
 
 
-                console.log("Received textlayerrendered...done")
+            console.log("Received textlayerrendered...done")
 
-            });
+        });
 
-        }
-
-        console.log("Beginning extraction...")
+        console.log("Beginning extraction...");
 
         if ( src instanceof Object) {
             // enable cmaps support too.

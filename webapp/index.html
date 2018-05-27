@@ -48,9 +48,8 @@
 
                     let options = {
                         noExtraction: false,
-                        //scale: 'page-width',
                         scale: 4,
-                        maxPages: 1
+                        maxPages: 999
                     };
 
                     createExtractPromise({ url: "test-basic.pdf" }, options ).then(function(result) {
