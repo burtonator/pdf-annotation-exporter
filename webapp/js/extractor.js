@@ -123,7 +123,7 @@ async function getAnnotations(page, extractionOptions) {
             linesOfText = getHighlightLinesOfText(page, highlightBox, highlightBoxWithScale, comment, extractionOptions);
 
             if (! extractionOptions.noAnnotationImages && highlightRegion.area > 0) {
-                image = getHighlightImage(page, highlightBoxWithScale);
+                image = await getHighlightImage(page, highlightBoxWithScale);
             }
 
         }
@@ -212,7 +212,7 @@ function parsePopupAnnotation(popupElement) {
 
 }
 
-function getHighlightImage(page, highlightBox) {
+async function getHighlightImage(page, highlightBox) {
 
     let canvas = getPageCanvas(page);
 
