@@ -43,6 +43,25 @@ function waitForResultsFromBuffer(src, buffer) {
 
 }
 
+function fixCanvas() {
+
+    let canvas = document.querySelector("canvas");
+
+    if (! canvas) {
+        console.log("FIXME: no canvas");
+        return;
+    }
+
+    let canvasCtx = canvas.getContext('2d');
+
+    console.log("FIXME: canvas context has image smoothing: " +  canvasCtx.imageSmoothingEnabled);
+
+    canvasCtx.imageSmoothingEnabled = false;
+
+    console.log("FIXME: image smoothing disabled");
+
+}
+
 /**
  *
  * @param src The source of the document.  See getDocument in pdf.js as this
@@ -54,6 +73,9 @@ function waitForResultsFromBuffer(src, buffer) {
  */
 async function createExtractPromise(src, options) {
 
+    // FIXME: create a default options object, then copy missing keys from the
+    // default options object to the options object.
+
     if ( ! options) {
         options = {
             noExtraction: false,
@@ -62,50 +84,68 @@ async function createExtractPromise(src, options) {
         };
     }
 
+    console.log("Running with options: ", options);
+
     return new Promise(function(resolve, reject) {
 
         let container = document.getElementById('viewerContainer');
+
+        let pageIdx = 1;
 
         console.log("Going to render in: ", container);
 
         let pdfSinglePageViewer = new pdfjsViewer.PDFSinglePageViewer(
             {
+                // FIXME scale here... I think?
+
                 container: container,
 
                 // TODO: bundle the images properly into the webapp dir.
                 // imageResourcesPath: "images/"
 
-                imageResourcesPath: "../node_modules/pdfjs-dist/web/images/"
+                imageResourcesPath: "../node_modules/pdfjs-dist/web/images/",
+                enableWebGL: true
 
             });
 
+        pdfSinglePageViewer.currentScale = options.scale;
+
         container.addEventListener('pagesinit', function () {
             console.log("Setting current scale view");
-            //pdfSinglePageViewer.currentScaleValue = 'page-width';
-            pdfSinglePageViewer.currentScaleValue = options.scale;
+
+            if(options.scale) {}
+            pdfSinglePageViewer.currentScale = options.scale;
+
+            fixCanvas();
         });
 
         container.addEventListener('pagechanging', function () {
             console.log("Detected page changing.")
+            fixCanvas();
         });
 
         container.addEventListener('pagechange', function () {
             console.log("Detected page change.")
+            fixCanvas();
+
         });
 
         container.addEventListener('pagerendered', function () {
             console.log("Detected pagerendered.")
+            fixCanvas();
+
         });
 
         container.addEventListener('pageloaded', function () {
             console.log("Detected pageloaded.")
+            fixCanvas();
+
         });
 
         container.addEventListener('DOMContentLoaded', function () {
-            console.log("Detected DOMContentLoaded.")
+            console.log("Detected DOMContentLoaded.");
+            fixCanvas();
         });
-
-
 
         // FIXME: this isn't the event I want as it doesn't actually work...
         // it will fire BEFORE textlayerrendered so I'm just constantly
@@ -113,21 +153,18 @@ async function createExtractPromise(src, options) {
         container.addEventListener('updateviewarea', function () {
             console.log("Detected updateviewarea.")
 
-            if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+            fixCanvas();
 
-                //++pdfSinglePageViewer.currentPageNumber;
+            let container2 = document.getElementById('viewerContainer');
 
-            } else {
-
-                console.log("Loaded final page (done).");
-
-                // we're done with our extraction.
-                resolve(state.pageAnnotations);
-
-            }
+            container2.addEventListener('textlayerrendered', function () {
+                console.log("FIXME container2 now works!");
+            } );
 
         });
 
+        // FIXME: don't conditially add the eventListener... ALWAYs add the event
+        // listener and then do this noExtraction test as a return.
         if (! options.noExtraction) {
 
             // FIXME: track down the "Warning: Setting up fake worker" message
@@ -138,7 +175,8 @@ async function createExtractPromise(src, options) {
             // doesn't give us the text but pagerendered is called before
             // textlayerrendered anyway so this is acceptable.
             container.addEventListener('textlayerrendered', function () {
-                console.log("Detected textlayerrendered.")
+
+                console.log("Received textlayerrendered...")
 
                 console.log(`Page ${pdfSinglePageViewer.currentPageNumber} has been rendered..`);
 
@@ -151,13 +189,51 @@ async function createExtractPromise(src, options) {
                 // FIXME: ideally this would be await...
                 doExtraction(extractionOptions).then(function (pageAnnotations) {
 
+                    console.log("Received page annotations...");
+
                     console.log("Found page annotations: ", pageAnnotations);
 
                     state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
                     console.log("textlayerrendered: done.")
 
+                    if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+
+                        // FIXME: try this again with
+                        // or some OTHER way to keep the page number in two variables
+                        // so I don't have to worry about a race issue internally with pdf.js
+
+                        console.log("Changing to next page");
+
+                        console.log(`FIXME: pageIdx: ${pageIdx}`)
+                        console.log(`FIXME: currentPageNumber: ${pdfSinglePageViewer.currentPageNumber}`)
+                        ++pageIdx;
+
+                        console.log(`Changing to page number ${pageIdx}`)
+
+                        //pdfSinglePageViewer.currentPageNumber = pageIdx;
+                        //pdfSinglePageViewer.currentPageNumber = pageIdx;
+
+                        pdfSinglePageViewer.currentPageNumber = pageIdx;
+                        // FIXME: I think the problem we're now dealing with is that the page CHANGES
+                        // but that we no longer receive any additional events!
+
+                        console.log(`FIXME: currentPageNumber IS NOW: ${pdfSinglePageViewer.currentPageNumber}`)
+
+                    } else {
+
+                        console.log("Loaded final page (done).");
+
+                        // we're done with our extraction.
+                        resolve(state.pageAnnotations);
+
+                    }
+
+                    console.log("Received page annotations...done");
+
                 })
+
+                console.log("Received textlayerrendered...done")
 
             });
 

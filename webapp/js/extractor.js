@@ -59,35 +59,35 @@ async function toDataURLHD(canvas) {
 
             //console.log("FIXME: AFTER toBlob");
 
-            // let reader = new FileReader();
-            //
-            // reader.addEventListener("onloadstart", function (err) {
-            //     console.log("FIXME3")
-            //     reject(err);
-            // });
-            //
-            // reader.addEventListener("loadend", function () {
-            //
-            //     console.log("FIXM4")
-            //     let encoded = _arrayBufferToBase64(reader.result);
-            //
-            //     resolve("data:image/jpeg;base64," + encoded);
-            //
-            // });
-            //
-            // reader.addEventListener("onerror", function (err) {
-            //     console.log("FIXME5")
-            //     reject(err);
-            // });
-            //
-            // reader.addEventListener("onabort", function (err) {
-            //     console.log("FIXME6")
-            //     reject(err);
-            // });
-            //
-            // reader.readAsArrayBuffer(blob);
+            let reader = new FileReader();
 
-            resolve("FIXME:fake-url");
+            reader.addEventListener("onloadstart", function (err) {
+                console.log("FIXME3")
+                reject(err);
+            });
+
+            reader.addEventListener("loadend", function () {
+
+                console.log("FIXM4")
+                let encoded = _arrayBufferToBase64(reader.result);
+
+                resolve(`data:${IMAGE_TYPE};base64,` + encoded);
+
+            });
+
+            reader.addEventListener("onerror", function (err) {
+                console.log("FIXME5")
+                reject(err);
+            });
+
+            reader.addEventListener("onabort", function (err) {
+                console.log("FIXME6")
+                reject(err);
+            });
+
+            reader.readAsArrayBuffer(blob);
+
+            // resolve("FIXME:fake-url");
 
          }, IMAGE_TYPE, IMAGE_QUALITY);
 
@@ -113,13 +113,15 @@ async function getAnnotations(page, extractionOptions) {
     let squareAnnotations = getAnnotationElements(page, "square");
     let textAnnotations = getAnnotationElements(page, "text");
 
-    console.log("Found text annotations: ", textAnnotations);
+    //console.log("Found text annotations: ", textAnnotations);
 
     // TODO: we can probably get all of these in one pass.
     let annotations
         = highlightAnnotations
         .concat(squareAnnotations)
         .concat(textAnnotations);
+
+    console.log("FIXME: found N raw annotations: " + annotations.length);
 
     for(let idx = 0; idx < annotations.length; ++idx) {
         let current = annotations[idx];
@@ -133,8 +135,11 @@ async function getAnnotations(page, extractionOptions) {
         let highlightBoxWithScale = regionToBox(highlightRegionWithScale);
 
         if(isSkippable(page, highlightRegionWithScale)) {
+            console.log("FIXME4 (skippable)");
             continue;
         }
+
+        console.log("FIXME2");
 
         let comment = {};
 
@@ -146,6 +151,8 @@ async function getAnnotations(page, extractionOptions) {
         let linesOfText = [];
 
         if (current.type !== 'text') {
+
+            console.log("FIXME3");
 
             linesOfText = getHighlightLinesOfText(page, highlightBox, highlightBoxWithScale, comment, extractionOptions);
 
@@ -178,12 +185,11 @@ async function getAnnotations(page, extractionOptions) {
 function isSkippable(page, highlightRegionWithScale) {
 
     let canvas = getPageCanvas(page);
-
     let canvasArea = canvas.offsetWidth * canvas.offsetHeight;
-
     let highlightArea = highlightRegionWithScale.width * highlightRegionWithScale.height;
-
     let coverage = highlightArea / canvasArea;
+
+    console.log("FIXME5: " + JSON.stringify({canvasArea, highlightArea, coverage}));
 
     // most annotations would never take up this much space so it must be an
     // annotation over an entire page. I was using these as 'page marks' to track
@@ -243,9 +249,16 @@ async function getHighlightImage(page, highlightBox) {
 
     let canvas = getPageCanvas(page);
 
+    // FIXME: this returns true but it might be because it is being reset...
+    //console.log("FIXME: main canvas has image smoothing enabled: "  + canvas.getContext('2d').imageSmoothingEnabled)
+
+
     let tmpCanvas = document.createElement("canvas");
 
-    let tmpCtx = tmpCanvas.getContext('2d');
+    let tempCanvasCtx = tmpCanvas.getContext('2d', {alpha: false});
+    tempCanvasCtx.imageSmoothingEnabled = false;
+
+    console.log("FIXME: temp canvas has image smoothing enabled: "  + tmpCanvas.getContext('2d').imageSmoothingEnabled)
 
     let highlightRegion = boxToRegion(highlightBox);
 
@@ -255,17 +268,17 @@ async function getHighlightImage(page, highlightBox) {
     const originX = 0;
     const originY = 0;
 
-    tmpCtx.drawImage(canvas,
-                     highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
-                     originX, originY, highlightRegion.width, highlightRegion.height );
+    tempCanvasCtx.drawImage(canvas,
+                            highlightRegion.left, highlightRegion.top, highlightRegion.width, highlightRegion.height,
+                            originX, originY, highlightRegion.width, highlightRegion.height );
 
     // TODO: toDataURL returns in 96DPI but we should return it in a higher
     // resolution I think however I guess a picture of text will just never look
     // appropriate.  This 96DPI comment makes no sense because they're jsut
     // pixels... There should be no hard width
 
-    let dataURL = await toDataURLHD(tmpCanvas);
-    //let dataURL = tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
+    //let dataURL = await toDataURLHD(tmpCanvas);
+    let dataURL = tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
 
     return {
         src: dataURL,

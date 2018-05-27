@@ -1,4 +1,30 @@
 
+- I have to rule out issues with the CANVAS before I fuck with the image URL
+  data.  It could be that I'm just doing something wrong with the canvas or I
+  have some other issue to deal with..
+
+    - 
+
+- FIXME: image and text issues:
+    - my toDataURLHD still does not work. The changes are VERY subtle but they
+      are there.
+
+    - chrome LIES about the image being 100%... toDataURL might actually be working
+
+    - the canvas we drawImage too might be the problem... I might need a better
+      way to take snapshot of the screen...
+
+       - https://github.com/mozilla/pdf.js/issues/7765
+       - https://github.com/mozilla/pdf.js/issues/4252
+       - https://bugs.chromium.org/p/chromium/issues/detail?id=7508#c83
+       - https://stackoverflow.com/questions/40066166/canvas-text-rendering-blurry
+
+       - http://wdobbie.com/pdf/
+
+         - this is a webGL PDF.. see if I can use this technique to get perfect
+           PDF text!!!
+
+       - https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/imageSmoothingEnabled
 
 - - change imageResourcesPath to something reasonable... 
 
