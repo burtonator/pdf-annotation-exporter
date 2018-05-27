@@ -364,14 +364,9 @@ async function extractPage(page, extractionOptions) {
     // in the future.
     let image = null;
 
-    return createPageExtract(annotations, image)
+    return {annotations, image};
 
 }
-
-function createPageExtract(annotations, image) {
-    return {annotations: annotations, image: image};
-}
-
 //
 // textAnnotationRegion = {
 //     left: 70,
@@ -395,25 +390,25 @@ function createPageExtract(annotations, image) {
  */
 function getAnnotationElements(page, type) {
 
-    var clazz = type + "Annotation";
+    let clazz = type + "Annotation";
 
-    var result = [];
+    let result = [];
 
-    var annotationElements = page.querySelectorAll(".annotationLayer ." + clazz + ", .annotationLayer .popupAnnotation")
+    let annotationElements = page.querySelectorAll(".annotationLayer ." + clazz + ", .annotationLayer .popupAnnotation")
 
-    for (var idx = 0; idx < annotationElements.length; ++idx) {
+    for (let idx = 0; idx < annotationElements.length; ++idx) {
 
-        var annotationElement = annotationElements[idx];
+        let annotationElement = annotationElements[idx];
 
         if (annotationElement.getAttribute("class") === clazz) {
 
-            var entry = { type: type, annotation: null, popup: null};
+            let entry = { type: type, annotation: null, popup: null};
             entry.annotation = annotationElement;
 
             // now see if we have an associated popup by looking ahead to the
             // next annotation.
 
-            var nextAnnotationElement = annotationElements[idx+1];
+            let nextAnnotationElement = annotationElements[idx+1];
 
             if (nextAnnotationElement && nextAnnotationElement.getAttribute("class") === "popupAnnotation") {
                 entry.popup = nextAnnotationElement.querySelector(".popupWrapper");
@@ -438,7 +433,7 @@ function getAnnotationElements(page, type) {
 
 async function doExtraction(extractionOptions) {
 
-    result = {
+    let result = {
         pages: []
     };
 
