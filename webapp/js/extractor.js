@@ -264,8 +264,8 @@ async function getHighlightImage(page, highlightBox) {
     // appropriate.  This 96DPI comment makes no sense because they're jsut
     // pixels... There should be no hard width
 
-    let dataURL = await toDataURLHD(tmpCanvas);
-    //let dataURL = tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
+    //let dataURL = await toDataURLHD(tmpCanvas);
+    let dataURL = tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY);
 
     return {};
 
