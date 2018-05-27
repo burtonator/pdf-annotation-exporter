@@ -9,7 +9,7 @@ runTest() {
     echo ${pdf}
     name=$(basename "${pdf}" | grep -Eo '^[^.]+')
 
-    ../bin/pdf-annotation-exporter "${pdf}" > json/"${name}".json
+    time ../bin/pdf-annotation-exporter "${pdf}" > json/"${name}".json
     ../bin/annotations2html json/"${name}".json > html/"${name}".html
 
 }

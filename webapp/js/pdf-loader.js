@@ -159,7 +159,7 @@ async function createExtractPromise(src, options) {
             // NOTE: we have to wait for textlayerrendered because pagerendered
             // doesn't give us the text but pagerendered is called before
             // textlayerrendered anyway so this is acceptable.
-            container.addEventListener('textlayerrendered', function () {
+            container.addEventListener('textlayerrendered', async function () {
 
                 console.log("Received textlayerrendered...")
 
@@ -167,37 +167,35 @@ async function createExtractPromise(src, options) {
 
                 let extractionOptions = createExtractionOptions();
 
-                // FIXME: ideally this would be await...
-                doExtraction(extractionOptions).then(function (pageAnnotations) {
+                let pageAnnotations = await doExtraction(extractionOptions);
 
-                    console.log("Received page annotations...");
+                console.log("Received page annotations...");
 
-                    console.log("Found page annotations: ", pageAnnotations);
+                console.log("Found page annotations: ", pageAnnotations);
 
-                    state.pageAnnotations.pages.push(...pageAnnotations.pages);
+                state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
-                    console.log("textlayerrendered: done.")
+                console.log("textlayerrendered: done.")
 
-                    if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+                if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
 
-                        ++pageIdx;
+                    ++pageIdx;
 
-                        console.log(`Changing to page number ${pageIdx}`)
+                    console.log(`Changing to page number ${pageIdx}`)
 
-                        pdfSinglePageViewer.currentPageNumber = pageIdx;
+                    pdfSinglePageViewer.currentPageNumber = pageIdx;
 
-                    } else {
+                } else {
 
-                        console.log("Loaded final page (done).");
+                    console.log("Loaded final page (done).");
 
-                        // we're done with our extraction.
-                        resolve(state.pageAnnotations);
+                    // we're done with our extraction.
+                    resolve(state.pageAnnotations);
 
-                    }
+                }
 
-                    console.log("Received page annotations...done");
+                console.log("Received page annotations...done");
 
-                })
 
                 console.log("Received textlayerrendered...done")
 

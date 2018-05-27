@@ -10,7 +10,6 @@ let options = {executablePath: "/usr/bin/chromium-browser",
                headless: true,
                args: ["--disable-web-security", " --allow-file-access-from-files", "--user-data-dir=/tmp"] };
 
-// TODO: I don't like this command line option handling.
 opt = getopt.create([
                         ['v' , 'verbose'      , 'Enable verbose output of progress'],
                         ['h' , 'help'         , 'display this help']
@@ -35,12 +34,11 @@ function trace(msg, ...args) {
 
     let pdfURL = opt.argv[0];
 
-    // TODO: take an --output path optionally as it might be nice to print
-    // progress to stdout as we are extracting pages
-
     // TODO: it might make sense to register an event listener within chromium
     // so puppeteer gets callbacks for each page so we can just stream annotations
-    // to a file one at a time.
+    // to a file one at a time instead of buffering it up in memory and then
+    // writing all at once.  I need to research sending event data between the
+    // two systems.
 
     //let pdfURL = "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf";
 
