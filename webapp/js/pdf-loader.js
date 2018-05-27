@@ -167,6 +167,7 @@ async function createExtractPromise(src, options) {
 
             let extractionOptions = createExtractionOptions();
 
+            // the page extraction time is minimal vs the total page rendering time.
             let pageAnnotations = await doExtraction(extractionOptions);
 
             console.log("Received page annotations...");

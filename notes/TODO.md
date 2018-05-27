@@ -1,3 +1,8 @@
+- the 'scale' of the pdf seems to be the dominant factor in rendering time.  When
+  I go from 4 to 2 the page rendering time is cut in half.  Loading the PDF seems
+  to not take long at all.
+
+
 // track down the "Warning: Setting up fake worker" message
 // because I could probably borrow this code to load my own blob
 // worker.
