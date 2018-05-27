@@ -53,7 +53,7 @@ function waitForResultsFromBuffer(src, buffer) {
  * @param options Specify the options for the extraction.
  * @returns {Promise<any>}
  */
-function createExtractPromise(src, options) {
+async function createExtractPromise(src, options) {
 
     if ( ! options) {
         options = {
@@ -85,33 +85,26 @@ function createExtractPromise(src, options) {
             // NOTE: we have to wait for textlayerrendered because pagerendered
             // doesn't give us the text but pagerendered is called before
             // textlayerrendered anyway so this is acceptable.
-            container.addEventListener('textlayerrendered', function () {
+            container.addEventListener('textlayerrendered', async function () {
 
                 console.log("Page has been rendered..");
 
                 let extractionOptions = createExtractionOptions();
-                doExtraction(extractionOptions)
-                    .then(function (pageAnnotations) {
 
-                        console.log("FIXME!!!");
+                let pageAnnotations = await doExtraction(extractionOptions);
 
-                        state.pageAnnotations.pages.push(...pageAnnotations.pages);
+                state.pageAnnotations.pages.push(...pageAnnotations.pages);
 
-                        console.log("Found page annotations: ", pageAnnotations);
+                console.log("Found page annotations: ", pageAnnotations);
 
-                        if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
-                            ++pdfSinglePageViewer.currentPageNumber;
-                        } else {
+                if (pdfSinglePageViewer.currentPageNumber < Math.min(options.maxPages, state.pdf.numPages)) {
+                    ++pdfSinglePageViewer.currentPageNumber;
+                } else {
 
-                            // we're done with our extraction.
-                            resolve(state.pageAnnotations);
+                    // we're done with our extraction.
+                    resolve(state.pageAnnotations);
 
-                        }
-
-                    }).catch(function(err) {
-                    console.err("Caught err: ", err);
-                    throw err;
-                });
+                }
 
             });
 

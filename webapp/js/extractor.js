@@ -71,7 +71,7 @@ async function toDataURLHD(canvas) {
 /**
  * Get the annotations from a specific page.
  */
-function getAnnotations(page, extractionOptions) {
+async function getAnnotations(page, extractionOptions) {
 
     // textAnnotation and highlightAnnotation
 
@@ -235,6 +235,7 @@ function getHighlightImage(page, highlightBox) {
     // pixels... There should be no hard width
 
     return {
+        //src: await toDataURLHD(tmpCanvas),
         src: tmpCanvas.toDataURL(IMAGE_TYPE, IMAGE_QUALITY),
         width: highlightRegion.width,
         height: highlightRegion.height
@@ -357,7 +358,8 @@ function test() {
 
 async function extractPage(page, extractionOptions) {
 
-    let annotations = getAnnotations(page, extractionOptions);
+    let annotations = await getAnnotations(page, extractionOptions);
+
     //var image = getImage(page);
 
     // TODO: no image for now because it's too much data. Make this an option
@@ -446,10 +448,8 @@ async function doExtraction(extractionOptions) {
         if (! canvas)
             continue;
 
-        extractPage(page, extractionOptions)
-            .then(function (pageExtract) {
-                result.pages.push(pageExtract);
-            });
+        let pageExtract = await extractPage(page, extractionOptions);
+        result.pages.push(pageExtract);
 
     }
 
